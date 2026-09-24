@@ -83,11 +83,10 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
    ~ made with love
 */
 
-
-// grab both canvases. bg = floating icons, tree = everything else
 const bgC=document.getElementById('bg'), bgX=bgC.getContext('2d');
 const tC =document.getElementById('tree'),tX =tC.getContext('2d');
 let W, H;
+
 function resize(){
   W = bgC.width = tC.width = innerWidth;
   H = bgC.height = tC.height = innerHeight;
@@ -97,8 +96,6 @@ function resize(){
 }
 window.addEventListener('resize', resize);
 
-
-// the messages i want her to read, one line at a time
 const LINES=[
   "Hey you 🌸",
   "Happy Birthday 🎂",
@@ -110,30 +107,22 @@ const LINES=[
 const COLORS=['#ff69b4','#ff1493','#e0115f','#ff4d6d','#ff85a1','#ffb3c6','#ffc2d4','#d63384','#c71585','#ff6b9d','#ffa07a'];
 const rand=a=>a[Math.floor(Math.random()*a.length)];
 
-// Danh sách emoji cho particles (icon trôi nổi)
+// Danh sách emoji cho particles
 const EMOJIS = ['🌸','🌺','🌷','🌹','💕','💖','💗','🎁','🎂','🧁','✨','⭐','🌟','💫','🎈','🎉','🪩'];
 
-
-// state goes here
 let branches = [], leaves = [];
 let treeDone = false, leavesDone = false, clickTime = null;
 let treeBaked = null, leavesBaked = null;
 
-
-// the intro: drop -> roll -> settle -> grow
 let phase = 'idle', phaseStart = 0;
 const flower = { x:0, y:0, rot:0, scale:1, alpha:1, size:50 };
 let trailPts = [], trailAlpha = 1;
 let groundY = 0, dropFromY = 0, rollFromX = 0, rollToX = 0;
 let treeX = 0, treeY = 0;
 
-
-// easing functions, copied from easings.net
 const easeInQuad  = t => t * t;
 const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
-
-// reusable flower shape (simple 5-petal approximation). centered roughly on (cx, cy)
 function flowerPath(c,cx,cy,s){
   c.beginPath();
   const petals = 5;
@@ -147,8 +136,7 @@ function flowerPath(c,cx,cy,s){
   c.closePath();
 }
 
-
-// little icons (emojis) that drift up in the background.
+// Tối ưu: ít particles hơn
 const particles=[];
 function mkP(randY){
   return{
@@ -159,16 +147,26 @@ function mkP(randY){
     r:2+Math.random()*4.5,
     a:0, ma:.22+Math.random()*.45,
     ph:Math.random()*Math.PI*2,
-    emoji: rand(EMOJIS),  // random emoji từ danh sách
+    emoji: rand(EMOJIS),
     col:rand(COLORS)
   };
 }
 function initParticles(){
   particles.length=0;
-  const N=Math.min(200,Math.max(120,Math.round(W*H/9500)));
+  // Giảm số lượng particles
+  const N = Math.min(100, Math.max(50, Math.round(W*H/18000)));
   for(let i=0;i<N;i++) particles.push(mkP(true));
 }
+
+// Tối ưu: giới hạn FPS cho particles
+let lastParticleDraw = 0;
+const particleFPS = 35;
+const particleInterval = 1000 / particleFPS;
+
 function drawAmbient(ts){
+  if (ts - lastParticleDraw < particleInterval) return;
+  lastParticleDraw = ts;
+
   bgX.clearRect(0,0,W,H);
   for(const p of particles){
     p.a=Math.min(p.ma,p.a+.006);
@@ -176,7 +174,8 @@ function drawAmbient(ts){
     p.x+=p.vx+Math.sin(ts*.0007+p.ph)*.25;
     if(p.y<-12) Object.assign(p,mkP(false));
     bgX.globalAlpha=p.a;
-    bgX.font = `${p.r * 2.2}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    // Giảm kích thước emoji
+    bgX.font = `${p.r * 1.5}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
     bgX.textAlign = 'center';
     bgX.textBaseline = 'middle';
     bgX.fillText(p.emoji, p.x, p.y);
@@ -184,8 +183,6 @@ function drawAmbient(ts){
   bgX.globalAlpha=1;
 }
 
-
-// runs the phase machine + draws the falling/rolling flower
 function updatePhases(ts){
   if(phase==='drop'){
     const dur=720;
@@ -222,8 +219,6 @@ function updatePhases(ts){
   }
 }
 
-
-// the glowing line the flower leaves behind as it rolls
 function drawTrail(){
   if(trailPts.length < 2 || trailAlpha <= 0) return;
   tX.save();
@@ -248,8 +243,6 @@ function drawTrail(){
   tX.shadowBlur=0;
 }
 
-
-// the big animated flower that rolls in. drawn twice: glow + brighter core
 function drawFlowerIcon(){
   if(flower.alpha <= 0) return;
   tX.save();
@@ -269,24 +262,15 @@ function drawFlowerIcon(){
   tX.shadowBlur=0;
 }
 
-
-// the tree itself. spent a while on this - the trick is using the classic
-// heart parametric curve as the spine of the tree:
-//    x = 16·sin³t
-//    y = 13·cos t − 5·cos2t − 2·cos3t − cos4t
-// flipped y for canvas. bottom point lives at t=π, top dip at t=0,
-// lobe peaks at t=±π/2.  two spines trace this outline -> instant heart shape.
 function heartPoint(t){
   const hx=16*Math.pow(Math.sin(t),3);
   const hy=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
   return{hx,hy};
 }
 
-
 function addSeg(x,y,ex,ey,w,delay){
   branches.push({x,y,ex,ey,w,delay});
 }
-
 
 function buildHeartTree(rootX,rootY){
   branches = [];
@@ -319,7 +303,6 @@ function buildHeartTree(rootX,rootY){
   }
 }
 
-
 function sproutInner(x,y,ang,len,w,delay){
   if(len<6||w<.7) return;
   const ex=x+Math.cos(ang)*len, ey=y+Math.sin(ang)*len;
@@ -329,7 +312,6 @@ function sproutInner(x,y,ang,len,w,delay){
   if(Math.random()>.25) sproutInner(ex,ey,ang-sp,len*sh,w*.66,delay+70);
   if(Math.random()>.25) sproutInner(ex,ey,ang+sp,len*sh,w*.66,delay+70);
 }
-
 
 function drawBranch(c,x1,y1,x2,y2,w){
   c.lineCap='round';
@@ -346,14 +328,12 @@ function drawBranch(c,x1,y1,x2,y2,w){
   c.shadowBlur=0;
 }
 
-
 function bakeTree(){
   treeBaked=document.createElement('canvas');
   treeBaked.width=W; treeBaked.height=H;
   const x=treeBaked.getContext('2d');
   for(const b of branches) drawBranch(x,b.x,b.y,b.ex,b.ey,b.w);
 }
-
 
 function spawnLeaves(rootX,rootY){
   const sc=Math.min(W,H)*.024;
@@ -387,7 +367,6 @@ function spawnLeaves(rootX,rootY){
   }
 }
 
-
 function bakeLeaves(){
   leavesBaked=document.createElement('canvas');
   leavesBaked.width=W; leavesBaked.height=H;
@@ -410,7 +389,6 @@ function bakeLeaves(){
   }
   x.shadowBlur=0;
 }
-
 
 function animate(ts){
   drawAmbient(ts);
@@ -472,9 +450,7 @@ function animate(ts){
   requestAnimationFrame(animate);
 }
 
-
 function startAnimation(){
-  // Phát nhạc khi click
   const music = document.getElementById('bg-music');
   if(music) {
     music.volume = 0.4;
@@ -507,7 +483,6 @@ function startAnimation(){
   phaseStart = performance.now();
 }
 
-
 function startTypewriter(){
   const msg=document.getElementById('message');
   msg.style.opacity='1';
@@ -534,15 +509,11 @@ function startTypewriter(){
   next();
 }
 
-
 // boot
 resize();
 initParticles();
 window.addEventListener('resize', () => { initParticles(); });
 requestAnimationFrame(animate);
-
-
-// happy birthday <3
 </script>
 </body>
 </html>
