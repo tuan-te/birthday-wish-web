@@ -1,554 +1,870 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happy Birthday 🌸</title>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;overflow:hidden;width:100vw;height:100vh}
-canvas{position:fixed;top:0;left:0;pointer-events:none}
-#bg{z-index:0}
-#tree{z-index:1}
-#initial{
-  position:fixed;bottom:24%;left:50%;transform:translateX(-50%);
-  text-align:center;z-index:10;cursor:pointer;transition:opacity .7s ease;
-  font-family:'Dancing Script',cursive;
-}
-#initial .flower{
-  font-size:clamp(70px,9vw,110px);display:inline-block;
-  animation:pulse 1.1s ease-in-out infinite;
-  filter:drop-shadow(0 0 12px #ff69b4) drop-shadow(0 0 30px #ff1493) drop-shadow(0 0 55px #c71585);
-}
-#initial .label{
-  margin-top:6px;font-size:clamp(22px,2.6vw,32px);
-  color:#ffb6c1;letter-spacing:2px;line-height:1.75;
-  text-shadow:0 0 10px #ff69b4,0 0 22px #ff1493;
-}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday 🌸</title>
 
-#message{
-  position:fixed;
-  top:52%;
-  left:50%;
-  transform:translate(-50%, -50%);
-  z-index:10;
-  opacity:0;
-  transition:opacity .55s;
-  font-family:'Dancing Script',cursive;
-  font-size:clamp(18px,2.3vw,30px);
-  line-height:2;
-  pointer-events:none;
-  color:#fff;
-  padding:18px 26px;
-  max-width:42%;
-  background:rgba(15,0,12,.42);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-  border:1px solid rgba(255,105,180,.22);
-  border-radius:14px;
-  box-shadow:0 0 30px rgba(255,20,147,.12);
-  text-align:center;
-}
-#message span{
-  display:block;
-  text-shadow:0 0 6px #ff69b4,0 0 14px #ff1493,0 2px 6px rgba(0,0,0,.7);
-}
-@keyframes blink{50%{border-color:transparent}}
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
 
-/* Khung ảnh sinh nhật 1:1 */
-#birthday-photo{
-  position:fixed;
-  top:10%;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:9;
-  width:28vmin;
-  height:28vmin;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  pointer-events:none;
-}
-#birthday-photo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  border-radius:16px;
-  box-shadow:0 10px 40px rgba(255,20,147,.35);
-  border:2px solid rgba(255,105,180,.5);
-}
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-@media (max-width:780px){
-  #initial{bottom:30%}
-  #message{
-    top:auto;
-    bottom:8%;
-    left:50%;
-    transform:translateX(-50%);
-    max-width:88%;
-    text-align:center;
-    font-size:clamp(15px,4.2vw,22px);
-    padding:14px 20px;
-  }
-  #birthday-photo{
-    top:6%;
-    width:36vmin;
-    height:36vmin;
-  }
-}
-</style>
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    #bg {
+      z-index: 0;
+    }
+
+    #tree {
+      z-index: 1;
+    }
+
+    /* Màn hình mở đầu */
+    #initial {
+      position: fixed;
+      bottom: 24%;
+      left: 50%;
+      z-index: 20;
+      cursor: pointer;
+      text-align: center;
+      transform: translateX(-50%);
+      transition: opacity 0.6s ease;
+      font-family: "Dancing Script", cursive;
+    }
+
+    #initial .flower {
+      display: inline-block;
+      font-size: clamp(70px, 9vw, 110px);
+      animation: pulse 1.1s ease-in-out infinite;
+      filter:
+        drop-shadow(0 0 12px #ff69b4)
+        drop-shadow(0 0 28px #ff1493)
+        drop-shadow(0 0 46px #c71585);
+    }
+
+    #initial .label {
+      margin-top: 6px;
+      color: #ffb6c1;
+      font-size: clamp(22px, 2.6vw, 32px);
+      letter-spacing: 2px;
+      line-height: 1.7;
+      text-shadow: 0 0 10px #ff69b4, 0 0 22px #ff1493;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.18);
+      }
+    }
+
+    /*
+      ẢNH:
+      - Ban đầu opacity = 0 và visibility = hidden
+      - JS sẽ thêm class .visible sau khi animation hoa hoàn tất
+    */
+    #birthday-photo {
+      position: fixed;
+      top: 50%;
+      left: 4%;
+      z-index: 10;
+      width: min(23vw, 270px);
+      aspect-ratio: 1 / 1;
+      transform: translateY(calc(-50% - 190px));
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.75s ease, visibility 0.75s ease;
+    }
+
+    #birthday-photo.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #birthday-photo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 105, 180, 0.56);
+      border-radius: 18px;
+      box-shadow: 0 0 24px rgba(255, 20, 147, 0.38);
+    }
+
+    /*
+      LỜI CHÚC:
+      - Nằm bên trái, bên dưới ảnh
+      - Chỉ hiện sau khi animation hoàn tất
+    */
+    #message {
+      position: fixed;
+      top: 50%;
+      left: 4%;
+      z-index: 10;
+      width: min(33vw, 400px);
+      max-width: 400px;
+      padding: 18px 24px;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+      transform: translateY(-50%);
+      transition: opacity 0.75s ease;
+      font-family: "Dancing Script", cursive;
+      font-size: clamp(18px, 2.1vw, 28px);
+      line-height: 1.75;
+      background: rgba(15, 0, 12, 0.45);
+      border: 1px solid rgba(255, 105, 180, 0.25);
+      border-radius: 16px;
+      box-shadow: 0 0 22px rgba(255, 20, 147, 0.16);
+    }
+
+    #message span {
+      display: block;
+      text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff1493;
+    }
+
+    @keyframes blink {
+      50% {
+        border-color: transparent;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 780px) {
+      #initial {
+        bottom: 30%;
+      }
+
+      #birthday-photo {
+        top: 7%;
+        left: 50%;
+        width: min(38vw, 190px);
+        transform: translateX(-50%);
+      }
+
+      #message {
+        top: auto;
+        bottom: 6%;
+        left: 50%;
+        width: 88%;
+        max-width: 420px;
+        padding: 14px 18px;
+        transform: translateX(-50%);
+        font-size: clamp(15px, 4.2vw, 22px);
+      }
+    }
+  </style>
 </head>
+
 <body>
+  <!--
+    Nhạc nền:
+    Cách nên dùng: upload file birthday.mp3 vào cùng thư mục index.html
+    Nếu file nằm trong thư mục audio thì đổi thành: ./audio/birthday.mp3
+  -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="./birthday.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
-<!-- Nhạc nền -->
-<audio id="bg-music" loop>
-  <source src="https://www.soundhelix.com/examples/mp3/Soundhelix-Song-08.mp3" type="audio/mpeg">
-  Your browser does not support the audio element.
-</audio>
+  <!--
+    Ảnh sinh nhật:
+    Upload ảnh vào cùng thư mục với index.html và đặt tên birthday.jpg.
+    Hoặc nếu bỏ vào thư mục img: src="./img/birthday.jpg"
+  -->
+  <div id="birthday-photo">
+    <img src="./birthday.jpg" alt="Birthday photo">
+  </div>
 
-<!-- Khung ảnh 1:1 -->
-<div id="birthday-photo">
-  <img src="https://i.imgur.com/ANH_CUA_BAN.png" alt="Birthday photo">
-</div>
+  <canvas id="bg"></canvas>
+  <canvas id="tree"></canvas>
 
-<canvas id="bg"></canvas>
-<canvas id="tree"></canvas>
-<div id="initial" onclick="startAnimation()">
-  <div class="flower">🌸</div>
-  <div class="label">Click Me :)<br>Birthday Queen !</div>
-</div>
-<div id="message"></div>
+  <!-- Nút mở animation -->
+  <div id="initial" onclick="startAnimation()">
+    <div class="flower">🌸</div>
+    <div class="label">Click Me :)<br>Birthday Queen!</div>
+  </div>
 
-<script>
-const bgC=document.getElementById('bg'), bgX=bgC.getContext('2d');
-const tC =document.getElementById('tree'),tX =tC.getContext('2d');
-let W, H;
+  <!-- Lời chúc được JS render lần lượt -->
+  <div id="message"></div>
 
-function resize(){
-  W = bgC.width = tC.width = innerWidth;
-  H = bgC.height = tC.height = innerHeight;
-  treeBaked = null; leavesBaked = null;
-  if(treeDone)   bakeTree();
-  if(leavesDone) bakeLeaves();
-}
-window.addEventListener('resize', resize);
+  <script>
+    const bgC = document.getElementById("bg");
+    const bgX = bgC.getContext("2d");
 
-const LINES=[
-  "Hey you 🌸",
-  "Happy Birthday 🎂",
-  "May God bless you 😇",
-  "And give u many happiness 💕",
-  "Just saying... you're pretty awesome 😍",
-  "Hope u have a great day today 🌸"
-];
-const COLORS=['#ff69b4','#ff1493','#e0115f','#ff4d6d','#ff85a1','#ffb3c6','#ffc2d4','#d63384','#c71585','#ff6b9d','#ffa07a'];
-const rand=a=>a[Math.floor(Math.random()*a.length)];
+    const tC = document.getElementById("tree");
+    const tX = tC.getContext("2d");
 
-const EMOJIS = ['🌸','🌺','🌷','🌹','💕','💖','💗','🎁','🎂','🧁','✨','⭐','🌟','💫','🎈','🎉','🪩'];
+    let W = 0;
+    let H = 0;
 
-let branches = [], leaves = [];
-let treeDone = false, leavesDone = false, clickTime = null;
-let treeBaked = null, leavesBaked = null;
+    function resize() {
+      W = bgC.width = tC.width = window.innerWidth;
+      H = bgC.height = tC.height = window.innerHeight;
 
-let phase = 'idle', phaseStart = 0;
-const flower = { x:0, y:0, rot:0, scale:1, alpha:1, size:50 };
-let trailPts = [], trailAlpha = 1;
-let groundY = 0, dropFromY = 0, rollFromX = 0, rollToX = 0;
-let treeX = 0, treeY = 0;
+      treeBaked = null;
+      leavesBaked = null;
 
-const easeInQuad  = t => t * t;
-const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
-
-function flowerPath(c,cx,cy,s){
-  c.beginPath();
-  const petals = 5;
-  for(let i=0;i<petals;i++){
-    const angle = (Math.PI*2/petals)*i;
-    const px = cx + Math.cos(angle)*s*0.9;
-    const py = cy + Math.sin(angle)*s*0.9;
-    c.moveTo(cx,cy);
-    c.arc(px,py,s*0.55,0,Math.PI*2);
-  }
-  c.closePath();
-}
-
-const particles=[];
-function mkP(randY){
-  return{
-    x:Math.random()*W,
-    y:randY?Math.random()*H:H+8,
-    vy:.25+Math.random()*.55,
-    vx:(Math.random()-.5)*.35,
-    r:2+Math.random()*4.5,
-    a:0, ma:.22+Math.random()*.45,
-    ph:Math.random()*Math.PI*2,
-    emoji: rand(EMOJIS),
-    col:rand(COLORS)
-  };
-}
-function initParticles(){
-  particles.length=0;
-  const N = Math.min(100, Math.max(50, Math.round(W*H/18000)));
-  for(let i=0;i<N;i++) particles.push(mkP(true));
-}
-
-let lastParticleDraw = 0;
-const particleFPS = 35;
-const particleInterval = 1000 / particleFPS;
-
-function drawAmbient(ts){
-  if (ts - lastParticleDraw < particleInterval) return;
-  lastParticleDraw = ts;
-
-  bgX.clearRect(0,0,W,H);
-  for(const p of particles){
-    p.a=Math.min(p.ma,p.a+.006);
-    p.y-=p.vy;
-    p.x+=p.vx+Math.sin(ts*.0007+p.ph)*.25;
-    if(p.y<-12) Object.assign(p,mkP(false));
-    bgX.globalAlpha=p.a;
-    // Tăng kích thước emoji
-    bgX.font = `${p.r * 3.0}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
-    bgX.textAlign = 'center';
-    bgX.textBaseline = 'middle';
-    bgX.fillText(p.emoji, p.x, p.y);
-  }
-  bgX.globalAlpha=1;
-}
-
-function updatePhases(ts){
-  if(phase==='drop'){
-    const dur=720;
-    const t=Math.min(1,(ts-phaseStart)/dur);
-    const e=easeInQuad(t);
-    flower.y=dropFromY+(groundY-dropFromY)*e;
-    flower.rot=e*0.35*(rollToX<rollFromX?-1:1);
-    trailPts.push({x:flower.x,y:flower.y});
-    if(t>=1){ phase='roll'; phaseStart=ts; }
-  } else if(phase==='roll'){
-    const dur=1150;
-    const t=Math.min(1,(ts-phaseStart)/dur);
-    const e=easeOutCubic(t);
-    flower.x=rollFromX+(rollToX-rollFromX)*e;
-    const amp = 14 * Math.pow(1-t, 1.6);
-    flower.y = groundY - Math.abs(Math.sin(t * Math.PI * 4)) * amp;
-    const dist = flower.x - rollFromX;
-    flower.rot=dist/flower.size*0.55;
-    trailPts.push({x:flower.x,y:flower.y});
-    if(t>=1){ phase='settle'; phaseStart=ts; }
-  } else if(phase==='settle'){
-    const dur=600;
-    const t=Math.min(1,(ts-phaseStart)/dur);
-    flower.x=rollToX;
-    flower.y=groundY;
-    flower.alpha=1-t;
-    flower.scale=1+t*0.45;
-    trailAlpha=1-t*0.9;
-    if(clickTime===null){
-      clickTime=ts;
-      buildHeartTree(treeX,treeY);
+      if (treeDone) bakeTree();
+      if (leavesDone) bakeLeaves();
     }
-    if(t>=1){ phase='grow'; flower.alpha=0; trailAlpha=0; }
-  }
-}
 
-function drawTrail(){
-  if(trailPts.length < 2 || trailAlpha <= 0) return;
-  tX.save();
-  tX.lineCap = 'round'; tX.lineJoin = 'round';
-  tX.strokeStyle = '#ff1493';
-  tX.lineWidth   = 10;
-  tX.globalAlpha = trailAlpha * 0.22;
-  tX.shadowBlur  = 22; tX.shadowColor = '#ff1493';
-  tX.beginPath();
-  tX.moveTo(trailPts[0].x, trailPts[0].y);
-  for(let i=1;i<trailPts.length;i++) tX.lineTo(trailPts[i].x, trailPts[i].y);
-  tX.stroke();
-  tX.globalAlpha=trailAlpha*0.85;
-  tX.strokeStyle='#ffc2d4';
-  tX.lineWidth=2.6;
-  tX.shadowBlur=8; tX.shadowColor='#ff69b4';
-  tX.beginPath();
-  tX.moveTo(trailPts[0].x,trailPts[0].y);
-  for(let i=1;i<trailPts.length;i++) tX.lineTo(trailPts[i].x, trailPts[i].y);
-  tX.stroke();
-  tX.restore();
-  tX.shadowBlur=0;
-}
+    window.addEventListener("resize", resize);
 
-function drawFlowerIcon(){
-  if(flower.alpha <= 0) return;
-  tX.save();
-  tX.translate(flower.x, flower.y);
-  tX.rotate(flower.rot);
-  tX.scale(flower.scale, flower.scale);
-  tX.globalAlpha = flower.alpha;
-  tX.shadowBlur=30; tX.shadowColor='#ff1493';
-  tX.fillStyle='#ff1493';
-  flowerPath(tX,0,-flower.size*0.4,flower.size);
-  tX.fill();
-  tX.shadowBlur=12; tX.shadowColor='#ff69b4';
-  tX.fillStyle='#ff69b4';
-  flowerPath(tX,0,-flower.size*0.4+2,flower.size*0.78);
-  tX.fill();
-  tX.restore();
-  tX.shadowBlur=0;
-}
+    /*
+      SỬA LỜI CHÚC Ở ĐÂY.
+      Mỗi chuỗi trong mảng là một dòng hiện lần lượt.
+    */
+    const LINES = [
+      "Hey you 🌸",
+      "Happy Birthday 🎂",
+      "May God bless you 😇",
+      "And give you lots of happiness ✨",
+      "Just saying... you are pretty awesome 😍",
+      "Hope you have a great day today 🌸"
+    ];
 
-function heartPoint(t){
-  const hx=16*Math.pow(Math.sin(t),3);
-  const hy=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-  return{hx,hy};
-}
+    const COLORS = [
+      "#ff69b4",
+      "#ff1493",
+      "#e0115f",
+      "#ff4d6d",
+      "#ff85a1",
+      "#ffb3c6",
+      "#ffc2d4",
+      "#d63384",
+      "#c71585",
+      "#ff6b9d",
+      "#ffa07a"
+    ];
 
-function addSeg(x,y,ex,ey,w,delay){
-  branches.push({x,y,ex,ey,w,delay});
-}
+    const EMOJIS = [
+      "🌸", "🌺", "🌷", "🌹",
+      "💕", "💖", "💗",
+      "🎁", "🎂", "🧁",
+      "✨", "⭐", "🌟",
+      "🎈", "🎉"
+    ];
 
-function buildHeartTree(rootX,rootY){
-  branches = [];
-  const sc = Math.min(W,H) * .024;
-  const stemH = H * .07;
-  const stemTopY = rootY - stemH;
+    const rand = array => array[Math.floor(Math.random() * array.length)];
 
-  addSeg(rootX, rootY, rootX, stemTopY, 11, 0);
+    /*
+      GIẢM LAG:
+      Số icon nền chỉ còn 25–55.
+      Không tăng số này nếu web bị chậm trên điện thoại.
+    */
+    const particles = [];
 
-  const N = 26;
-  for(const dir of [+1, -1]){
-    let pX = rootX, pY = stemTopY, pW = 10;
-    let delay = 180;
-    for(let i=1; i<=N; i++){
-      const t = Math.PI + dir * Math.PI * i / N;
-      const { hx, hy } = heartPoint(t);
-      const cx = rootX + hx * sc;
-      const cy = stemTopY - (17 - hy) * sc;
-      const w  = Math.max(1.6, pW * .945);
-      addSeg(pX, pY, cx, cy, w, delay);
+    function makeParticle(randomY) {
+      return {
+        x: Math.random() * W,
+        y: randomY ? Math.random() * H : H + 16,
+        vy: 0.24 + Math.random() * 0.42,
+        vx: (Math.random() - 0.5) * 0.28,
+        r: 3 + Math.random() * 4,
+        alpha: 0,
+        maxAlpha: 0.18 + Math.random() * 0.32,
+        phase: Math.random() * Math.PI * 2,
+        emoji: rand(EMOJIS)
+      };
+    }
 
-      if(i>2 && i<N-1 && i%2===0){
-        const heartCY = stemTopY - 11*sc;
-        const ang = Math.atan2(heartCY-cy, rootX-cx) + (Math.random()-.5)*.5;
-        sproutInner(cx,cy, ang, sc*(2.4+Math.random()*1.8), w*.55, delay+40);
+    function initParticles() {
+      particles.length = 0;
+
+      const count = Math.min(55, Math.max(25, Math.round((W * H) / 30000)));
+
+      for (let i = 0; i < count; i++) {
+        particles.push(makeParticle(true));
       }
-      pX=cx; pY=cy; pW=w;
-      delay+=46;
     }
-  }
-}
 
-function sproutInner(x,y,ang,len,w,delay){
-  if(len<6||w<.7) return;
-  const ex=x+Math.cos(ang)*len, ey=y+Math.sin(ang)*len;
-  addSeg(x,y,ex,ey,w,delay);
-  const sp=.38+Math.random()*.32;
-  const sh=.6+Math.random()*.15;
-  if(Math.random()>.25) sproutInner(ex,ey,ang-sp,len*sh,w*.66,delay+70);
-  if(Math.random()>.25) sproutInner(ex,ey,ang+sp,len*sh,w*.66,delay+70);
-}
+    /*
+      Nền được redraw 24 FPS, không phải 60 FPS:
+      giảm đáng kể lag khi render emoji canvas.
+    */
+    let lastParticleDraw = 0;
+    const particleFPS = 24;
+    const particleInterval = 1000 / particleFPS;
 
-function drawBranch(c,x1,y1,x2,y2,w){
-  c.lineCap='round';
-  c.strokeStyle='#ff1493';
-  c.lineWidth=Math.max(1,w*.55)+3;
-  c.globalAlpha=.16;
-  c.shadowBlur=14; c.shadowColor='#ff69b4';
-  c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
-  c.globalAlpha=1;
-  c.shadowBlur=5;
-  c.strokeStyle='#ffc2d4';
-  c.lineWidth=Math.max(1,w*.55);
-  c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
-  c.shadowBlur=0;
-}
+    function drawAmbient(ts) {
+      if (ts - lastParticleDraw < particleInterval) return;
 
-function bakeTree(){
-  treeBaked=document.createElement('canvas');
-  treeBaked.width=W; treeBaked.height=H;
-  const x=treeBaked.getContext('2d');
-  for(const b of branches) drawBranch(x,b.x,b.y,b.ex,b.ey,b.w);
-}
+      lastParticleDraw = ts;
+      bgX.clearRect(0, 0, W, H);
 
-function spawnLeaves(rootX,rootY){
-  const sc=Math.min(W,H)*.024;
-  const stemH=H*.07;
-  const heartCX=rootX;
-  const heartCY=(rootY-stemH)-11*sc;
-  const Rx=16*sc*1.05;
-  const Ry=11*sc*1.05;
-  for(let i=0;i<460;i++){
-    const t=Math.random()*Math.PI*2;
-    const { hx, hy } = heartPoint(t);
-    const sca=.18+Math.random()*.85;
-    leaves.push({
-      x:heartCX+(hx/16)*Rx*sca+(Math.random()-.5)*22,
-      y:heartCY+((hy-6)/11)*Ry*sca+(Math.random()-.5)*22,
-      s:4+Math.random()*8,
-      col:rand(COLORS),
-      d:performance.now()+i*1.6+Math.random()*420
-    });
-  }
-  for(let i=0;i<140;i++){
-    const t=Math.random()*Math.PI*2;
-    const { hx, hy } = heartPoint(t);
-    leaves.push({
-      x:heartCX+(hx/16)*Rx+(Math.random()-.5)*14,
-      y:heartCY+((hy-6)/11)*Ry+(Math.random()-.5)*14,
-      s:3+Math.random()*5,
-      col:rand(COLORS),
-      d:performance.now()+i*2+Math.random()*500
-    });
-  }
-}
+      for (const p of particles) {
+        p.alpha = Math.min(p.maxAlpha, p.alpha + 0.012);
+        p.y -= p.vy;
+        p.x += p.vx + Math.sin(ts * 0.0007 + p.phase) * 0.18;
 
-function bakeLeaves(){
-  leavesBaked=document.createElement('canvas');
-  leavesBaked.width=W; leavesBaked.height=H;
-  const x=leavesBaked.getContext('2d');
-  x.globalCompositeOperation='lighter';
-  for(const h of leaves){
-    x.fillStyle=h.col;
-    flowerPath(x,h.x,h.y,h.s);
-    x.fill();
-  }
-  x.globalCompositeOperation='source-over';
-  x.shadowBlur=10;
-  for(const h of leaves){
-    if(Math.random()>.7){
-      x.shadowColor=h.col;
-      x.fillStyle=h.col;
-      flowerPath(x,h.x,h.y,h.s*.6);
-      x.fill();
+        if (p.y < -28) {
+          Object.assign(p, makeParticle(false));
+        }
+
+        bgX.globalAlpha = p.alpha;
+        bgX.font = `${p.r * 2.35}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+        bgX.textAlign = "center";
+        bgX.textBaseline = "middle";
+        bgX.fillText(p.emoji, p.x, p.y);
+      }
+
+      bgX.globalAlpha = 1;
     }
-  }
-  x.shadowBlur=0;
-}
 
-function animate(ts){
-  drawAmbient(ts);
-  tX.clearRect(0,0,W,H);
+    function flowerPath(c, cx, cy, size) {
+      c.beginPath();
 
-  if(phase!=='idle') updatePhases(ts);
+      const petals = 5;
 
-  if(clickTime!==null){
-    const el=ts-clickTime;
-    if(treeBaked){
-      tX.drawImage(treeBaked,0,0);
-    } else {
-      let bdone=true;
+      for (let i = 0; i < petals; i++) {
+        const angle = (Math.PI * 2 / petals) * i;
+        const px = cx + Math.cos(angle) * size * 0.9;
+        const py = cy + Math.sin(angle) * size * 0.9;
+
+        c.moveTo(cx, cy);
+        c.arc(px, py, size * 0.55, 0, Math.PI * 2);
+      }
+
+      c.closePath();
+    }
+
+    let branches = [];
+    let leaves = [];
+
+    let treeDone = false;
+    let leavesDone = false;
+    let clickTime = null;
+
+    let treeBaked = null;
+    let leavesBaked = null;
+
+    let phase = "idle";
+    let phaseStart = 0;
+
+    const flower = {
+      x: 0,
+      y: 0,
+      rot: 0,
+      scale: 1,
+      alpha: 1,
+      size: 50
+    };
+
+    let trailPoints = [];
+    let trailAlpha = 1;
+
+    let groundY = 0;
+    let dropFromY = 0;
+    let rollFromX = 0;
+    let rollToX = 0;
+    let treeX = 0;
+    let treeY = 0;
+
+    const easeInQuad = t => t * t;
+    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+    function updatePhases(ts) {
+      if (phase === "drop") {
+        const duration = 650;
+        const t = Math.min(1, (ts - phaseStart) / duration);
+        const eased = easeInQuad(t);
+
+        flower.y = dropFromY + (groundY - dropFromY) * eased;
+        flower.rot = eased * 0.35 * (rollToX < rollFromX ? -1 : 1);
+
+        trailPoints.push({ x: flower.x, y: flower.y });
+
+        if (t >= 1) {
+          phase = "roll";
+          phaseStart = ts;
+        }
+      } else if (phase === "roll") {
+        const duration = 950;
+        const t = Math.min(1, (ts - phaseStart) / duration);
+        const eased = easeOutCubic(t);
+
+        flower.x = rollFromX + (rollToX - rollFromX) * eased;
+
+        const jump = 12 * Math.pow(1 - t, 1.6);
+        flower.y = groundY - Math.abs(Math.sin(t * Math.PI * 4)) * jump;
+
+        const distance = flower.x - rollFromX;
+        flower.rot = distance / flower.size * 0.55;
+
+        trailPoints.push({ x: flower.x, y: flower.y });
+
+        if (t >= 1) {
+          phase = "settle";
+          phaseStart = ts;
+        }
+      } else if (phase === "settle") {
+        const duration = 450;
+        const t = Math.min(1, (ts - phaseStart) / duration);
+
+        flower.x = rollToX;
+        flower.y = groundY;
+        flower.alpha = 1 - t;
+        flower.scale = 1 + t * 0.4;
+        trailAlpha = 1 - t * 0.9;
+
+        if (clickTime === null) {
+          clickTime = ts;
+          buildFlowerTree(treeX, treeY);
+        }
+
+        if (t >= 1) {
+          phase = "grow";
+          flower.alpha = 0;
+          trailAlpha = 0;
+        }
+      }
+    }
+
+    function drawTrail() {
+      if (trailPoints.length < 2 || trailAlpha <= 0) return;
+
       tX.save();
-      for(const b of branches){
-        const t=Math.min(1,Math.max(0,(el-b.delay)/240));
-        if(t<1) bdone=false;
-        if(t<=0) continue;
-        const ex=b.x+(b.ex-b.x)*t;
-        const ey=b.y+(b.ey-b.y)*t;
-        drawBranch(tX,b.x,b.y,ex,ey,b.w);
+      tX.lineCap = "round";
+      tX.lineJoin = "round";
+
+      tX.strokeStyle = "#ff1493";
+      tX.lineWidth = 7;
+      tX.globalAlpha = trailAlpha * 0.18;
+      tX.beginPath();
+      tX.moveTo(trailPoints[0].x, trailPoints[0].y);
+
+      for (let i = 1; i < trailPoints.length; i++) {
+        tX.lineTo(trailPoints[i].x, trailPoints[i].y);
       }
+
+      tX.stroke();
+
+      tX.globalAlpha = trailAlpha * 0.75;
+      tX.strokeStyle = "#ffc2d4";
+      tX.lineWidth = 2;
+      tX.beginPath();
+      tX.moveTo(trailPoints[0].x, trailPoints[0].y);
+
+      for (let i = 1; i < trailPoints.length; i++) {
+        tX.lineTo(trailPoints[i].x, trailPoints[i].y);
+      }
+
+      tX.stroke();
       tX.restore();
-      if(bdone && branches.length && !treeDone){
-        treeDone=true;
-        bakeTree();
-        spawnLeaves(treeX,treeY);
+    }
+
+    function drawFlowerIcon() {
+      if (flower.alpha <= 0) return;
+
+      tX.save();
+      tX.translate(flower.x, flower.y);
+      tX.rotate(flower.rot);
+      tX.scale(flower.scale, flower.scale);
+      tX.globalAlpha = flower.alpha;
+
+      tX.fillStyle = "#ff1493";
+      flowerPath(tX, 0, -flower.size * 0.4, flower.size);
+      tX.fill();
+
+      tX.fillStyle = "#ff85a1";
+      flowerPath(tX, 0, -flower.size * 0.4 + 2, flower.size * 0.72);
+      tX.fill();
+
+      tX.restore();
+    }
+
+    /*
+      Tạo cây có dáng hình trái tim, nhưng hoa được render theo số lượng nhẹ hơn.
+    */
+    function heartPoint(t) {
+      const hx = 16 * Math.pow(Math.sin(t), 3);
+      const hy = -(
+        13 * Math.cos(t) -
+        5 * Math.cos(2 * t) -
+        2 * Math.cos(3 * t) -
+        Math.cos(4 * t)
+      );
+
+      return { hx, hy };
+    }
+
+    function addBranch(x, y, endX, endY, width, delay) {
+      branches.push({
+        x,
+        y,
+        endX,
+        endY,
+        width,
+        delay
+      });
+    }
+
+    function growInnerBranch(x, y, angle, length, width, delay) {
+      if (length < 6 || width < 0.8) return;
+
+      const endX = x + Math.cos(angle) * length;
+      const endY = y + Math.sin(angle) * length;
+
+      addBranch(x, y, endX, endY, width, delay);
+
+      const spread = 0.38 + Math.random() * 0.28;
+      const shrink = 0.62 + Math.random() * 0.12;
+
+      if (Math.random() > 0.32) {
+        growInnerBranch(endX, endY, angle - spread, length * shrink, width * 0.66, delay + 70);
+      }
+
+      if (Math.random() > 0.32) {
+        growInnerBranch(endX, endY, angle + spread, length * shrink, width * 0.66, delay + 70);
       }
     }
-    if(leavesBaked){
-      tX.drawImage(leavesBaked,0,0);
-    } else if(treeDone){
-      let ldone=true;
-      tX.globalCompositeOperation='lighter';
-      for(const h of leaves){
-        const t=Math.min(1,Math.max(0,(ts-h.d)/170));
-        if(t<1) ldone=false;
-        if(t<=0) continue;
-        tX.globalAlpha=t;
-        tX.fillStyle=h.col;
-        flowerPath(tX,h.x,h.y,h.s*t);
-        tX.fill();
-      }
-      tX.globalCompositeOperation='source-over';
-      tX.globalAlpha=1;
-      if(ldone && leaves.length && !leavesDone){
-        leavesDone=true;
-        bakeLeaves();
-        startTypewriter();
+
+    function buildFlowerTree(rootX, rootY) {
+      branches = [];
+
+      const scale = Math.min(W, H) * 0.024;
+      const stemHeight = H * 0.07;
+      const stemTopY = rootY - stemHeight;
+
+      addBranch(rootX, rootY, rootX, stemTopY, 10, 0);
+
+      const points = 23;
+
+      for (const direction of [1, -1]) {
+        let previousX = rootX;
+        let previousY = stemTopY;
+        let previousWidth = 9;
+        let delay = 150;
+
+        for (let i = 1; i <= points; i++) {
+          const t = Math.PI + direction * Math.PI * i / points;
+          const { hx, hy } = heartPoint(t);
+
+          const currentX = rootX + hx * scale;
+          const currentY = stemTopY - (17 - hy) * scale;
+          const currentWidth = Math.max(1.5, previousWidth * 0.945);
+
+          addBranch(
+            previousX,
+            previousY,
+            currentX,
+            currentY,
+            currentWidth,
+            delay
+          );
+
+          if (i > 2 && i < points - 1 && i % 3 === 0) {
+            const centerY = stemTopY - 11 * scale;
+            const angle = Math.atan2(centerY - currentY, rootX - currentX) + (Math.random() - 0.5) * 0.45;
+
+            growInnerBranch(
+              currentX,
+              currentY,
+              angle,
+              scale * (2 + Math.random() * 1.5),
+              currentWidth * 0.5,
+              delay + 35
+            );
+          }
+
+          previousX = currentX;
+          previousY = currentY;
+          previousWidth = currentWidth;
+          delay += 48;
+        }
       }
     }
-  }
 
-  if(phase==='drop'||phase==='roll'||phase==='settle'){
-    drawTrail();
-    drawFlowerIcon();
-  }
+    function drawBranch(context, x1, y1, x2, y2, width) {
+      context.lineCap = "round";
+      context.strokeStyle = "#ffc2d4";
+      context.lineWidth = Math.max(1, width * 0.55);
+      context.globalAlpha = 0.9;
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.stroke();
+    }
 
-  requestAnimationFrame(animate);
-}
+    function bakeTree() {
+      treeBaked = document.createElement("canvas");
+      treeBaked.width = W;
+      treeBaked.height = H;
 
-function startAnimation(){
-  const music = document.getElementById('bg-music');
-  if(music) {
-    music.volume = 0.4;
-    music.play().catch(e => console.log('Audio play failed:', e));
-  }
+      const context = treeBaked.getContext("2d");
 
-  if(phase !== 'idle') return;
-
-  const el = document.getElementById('initial');
-  const flowerEl = el.querySelector('.flower');
-  const r = flowerEl.getBoundingClientRect();
-
-  flower.x = r.left + r.width/2;
-  flower.y = r.top  + r.height/2;
-  flower.size = Math.max(38, Math.min(64, r.width * 0.55));
-  flower.alpha = 1; flower.rot = 0; flower.scale = 1;
-
-  el.style.opacity = '0';
-  setTimeout(() => el.style.display = 'none', 300);
-
-  groundY   = H * 0.86;
-  dropFromY = flower.y;
-  rollFromX = flower.x;
-  rollToX = (W < 780) ? W * 0.5 : W * 0.70;
-  treeX = rollToX; treeY = groundY;
-
-  trailPts = [{ x: flower.x, y: flower.y }];
-  trailAlpha = 1;
-  phase = 'drop';
-  phaseStart = performance.now();
-}
-
-function startTypewriter(){
-  const msg=document.getElementById('message');
-  msg.style.opacity='1';
-  let idx=0;
-  function next(){
-    if(idx>=LINES.length) return;
-    const sp=document.createElement('span');
-    sp.style.borderRight='2px solid #ff69b4';
-    sp.style.animation='blink .65s step-end infinite';
-    msg.appendChild(sp);
-    const txt=LINES[idx]; let ci=0;
-    const iv=setInterval(()=>{
-      if(ci<=txt.length){ sp.textContent=txt.substring(0,ci); ci++; }
-      else{
-        clearInterval(iv);
-        sp.style.borderRight='none';
-        sp.style.animation='none';
-        msg.appendChild(document.createElement('br'));
-        idx++;
-        setTimeout(next,500);
+      for (const branch of branches) {
+        drawBranch(
+          context,
+          branch.x,
+          branch.y,
+          branch.endX,
+          branch.endY,
+          branch.width
+        );
       }
-    },65);
-  }
-  next();
-}
+    }
 
-// boot
-resize();
-initParticles();
-window.addEventListener('resize', () => { initParticles(); });
-requestAnimationFrame(animate);
-</script>
+    /*
+      GIẢM LAG:
+      Chỉ tạo 180 hoa thay vì 600 như bản cũ.
+    */
+    function spawnLeaves(rootX, rootY) {
+      leaves = [];
+
+      const scale = Math.min(W, H) * 0.024;
+      const stemHeight = H * 0.07;
+
+      const centerX = rootX;
+      const centerY = (rootY - stemHeight) - 11 * scale;
+
+      const radiusX = 16 * scale * 1.05;
+      const radiusY = 11 * scale * 1.05;
+
+      /* Hoa ở vùng bên trong */
+      for (let i = 0; i < 140; i++) {
+        const t = Math.random() * Math.PI * 2;
+        const { hx, hy } = heartPoint(t);
+        const scatter = 0.2 + Math.random() * 0.8;
+
+        leaves.push({
+          x: centerX + (hx / 16) * radiusX * scatter + (Math.random() - 0.5) * 18,
+          y: centerY + ((hy - 6) / 11) * radiusY * scatter + (Math.random() - 0.5) * 18,
+          size: 4 + Math.random() * 7,
+          color: rand(COLORS),
+          delay: performance.now() + i * 6 + Math.random() * 360
+        });
+      }
+
+      /* Hoa viền ngoài */
+      for (let i = 0; i < 40; i++) {
+        const t = Math.random() * Math.PI * 2;
+        const { hx, hy } = heartPoint(t);
+
+        leaves.push({
+          x: centerX + (hx / 16) * radiusX + (Math.random() - 0.5) * 10,
+          y: centerY + ((hy - 6) / 11) * radiusY + (Math.random() - 0.5) * 10,
+          size: 3 + Math.random() * 4,
+          color: rand(COLORS),
+          delay: performance.now() + i * 8 + Math.random() * 300
+        });
+      }
+    }
+
+    function bakeLeaves() {
+      leavesBaked = document.createElement("canvas");
+      leavesBaked.width = W;
+      leavesBaked.height = H;
+
+      const context = leavesBaked.getContext("2d");
+
+      for (const leaf of leaves) {
+        context.fillStyle = leaf.color;
+        flowerPath(context, leaf.x, leaf.y, leaf.size);
+        context.fill();
+      }
+    }
+
+    function animate(ts) {
+      drawAmbient(ts);
+      tX.clearRect(0, 0, W, H);
+
+      if (phase !== "idle") {
+        updatePhases(ts);
+      }
+
+      if (clickTime !== null) {
+        const elapsed = ts - clickTime;
+
+        /* Vẽ cành cây */
+        if (treeBaked) {
+          tX.drawImage(treeBaked, 0, 0);
+        } else {
+          let treeFinished = true;
+
+          for (const branch of branches) {
+            const progress = Math.min(1, Math.max(0, (elapsed - branch.delay) / 220));
+
+            if (progress < 1) treeFinished = false;
+            if (progress <= 0) continue;
+
+            const currentX = branch.x + (branch.endX - branch.x) * progress;
+            const currentY = branch.y + (branch.endY - branch.y) * progress;
+
+            drawBranch(
+              tX,
+              branch.x,
+              branch.y,
+              currentX,
+              currentY,
+              branch.width
+            );
+          }
+
+          if (treeFinished && branches.length && !treeDone) {
+            treeDone = true;
+            bakeTree();
+            spawnLeaves(treeX, treeY);
+          }
+        }
+
+        /* Vẽ hoa */
+        if (leavesBaked) {
+          tX.drawImage(leavesBaked, 0, 0);
+        } else if (treeDone) {
+          let leavesFinished = true;
+
+          for (const leaf of leaves) {
+            const progress = Math.min(1, Math.max(0, (ts - leaf.delay) / 150));
+
+            if (progress < 1) leavesFinished = false;
+            if (progress <= 0) continue;
+
+            tX.globalAlpha = progress;
+            tX.fillStyle = leaf.color;
+            flowerPath(tX, leaf.x, leaf.y, leaf.size * progress);
+            tX.fill();
+          }
+
+          tX.globalAlpha = 1;
+
+          if (leavesFinished && leaves.length && !leavesDone) {
+            leavesDone = true;
+            bakeLeaves();
+            startTypewriter();
+          }
+        }
+      }
+
+      if (phase === "drop" || phase === "roll" || phase === "settle") {
+        drawTrail();
+        drawFlowerIcon();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function startAnimation() {
+      if (phase !== "idle") return;
+
+      /* Phát nhạc sau tương tác click để không bị trình duyệt chặn autoplay */
+      const music = document.getElementById("bg-music");
+
+      if (music) {
+        music.volume = 0.35;
+        music.play().catch(error => {
+          console.log("Không thể phát nhạc:", error);
+        });
+      }
+
+      const intro = document.getElementById("initial");
+      const flowerElement = intro.querySelector(".flower");
+      const rect = flowerElement.getBoundingClientRect();
+
+      flower.x = rect.left + rect.width / 2;
+      flower.y = rect.top + rect.height / 2;
+      flower.size = Math.max(38, Math.min(64, rect.width * 0.55));
+      flower.alpha = 1;
+      flower.rot = 0;
+      flower.scale = 1;
+
+      intro.style.opacity = "0";
+
+      setTimeout(() => {
+        intro.style.display = "none";
+      }, 300);
+
+      groundY = H * 0.86;
+      dropFromY = flower.y;
+      rollFromX = flower.x;
+
+      /*
+        Desktop: cây nằm bên phải.
+        Mobile: cây nằm giữa.
+      */
+      rollToX = W < 780 ? W * 0.5 : W * 0.72;
+
+      treeX = rollToX;
+      treeY = groundY;
+
+      trailPoints = [{ x: flower.x, y: flower.y }];
+      trailAlpha = 1;
+
+      phase = "drop";
+      phaseStart = performance.now();
+    }
+
+    /*
+      Ảnh và lời chúc chỉ xuất hiện sau khi hoa nở hoàn tất.
+    */
+    function startTypewriter() {
+      const message = document.getElementById("message");
+      const photo = document.getElementById("birthday-photo");
+
+      photo.classList.add("visible");
+      message.style.opacity = "1";
+
+      let lineIndex = 0;
+
+      function showNextLine() {
+        if (lineIndex >= LINES.length) return;
+
+        const span = document.createElement("span");
+        span.style.borderRight = "2px solid #ff69b4";
+        span.style.animation = "blink .65s step-end infinite";
+
+        message.appendChild(span);
+
+        const text = LINES[lineIndex];
+        let characterIndex = 0;
+
+        const typing = setInterval(() => {
+          if (characterIndex <= text.length) {
+            span.textContent = text.substring(0, characterIndex);
+            characterIndex++;
+          } else {
+            clearInterval(typing);
+            span.style.borderRight = "none";
+            span.style.animation = "none";
+
+            lineIndex++;
+            setTimeout(showNextLine, 420);
+          }
+        }, 55);
+      }
+
+      showNextLine();
+    }
+
+    resize();
+    initParticles();
+
+    window.addEventListener("resize", initParticles);
+
+    requestAnimationFrame(animate);
+  </script>
 </body>
 </html>
