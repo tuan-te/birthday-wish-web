@@ -63,6 +63,12 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
 </style>
 </head>
 <body>
+<!-- Nhạc nền -->
+<audio id="bg-music" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/Soundhelix-Song-08.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
 <canvas id="bg"></canvas>
 <canvas id="tree"></canvas>
 <div id="initial" onclick="startAnimation()">
@@ -78,14 +84,13 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
 */
 
 
-// grab both canvases. bg = floating flowers, tree = everything else
+// grab both canvases. bg = floating icons, tree = everything else
 const bgC=document.getElementById('bg'), bgX=bgC.getContext('2d');
 const tC =document.getElementById('tree'),tX =tC.getContext('2d');
 let W, H;
 function resize(){
   W = bgC.width = tC.width = innerWidth;
   H = bgC.height = tC.height = innerHeight;
-  // canvases got cleared by the resize, so we have to redraw the cached layers
   treeBaked = null; leavesBaked = null;
   if(treeDone)   bakeTree();
   if(leavesDone) bakeLeaves();
@@ -104,6 +109,9 @@ const LINES=[
 ];
 const COLORS=['#ff69b4','#ff1493','#e0115f','#ff4d6d','#ff85a1','#ffb3c6','#ffc2d4','#d63384','#c71585','#ff6b9d','#ffa07a'];
 const rand=a=>a[Math.floor(Math.random()*a.length)];
+
+// Danh sách emoji cho particles (icon trôi nổi)
+const EMOJIS = ['🌸','🌺','🌷','🌹','💕','💖','💗','🎁','🎂','🧁','✨','⭐','🌟','💫','🎈','🎉','🪩'];
 
 
 // state goes here
@@ -127,7 +135,6 @@ const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
 // reusable flower shape (simple 5-petal approximation). centered roughly on (cx, cy)
 function flowerPath(c,cx,cy,s){
-  // draw a simple 5-petal flower using arcs
   c.beginPath();
   const petals = 5;
   for(let i=0;i<petals;i++){
@@ -141,7 +148,7 @@ function flowerPath(c,cx,cy,s){
 }
 
 
-// little flowers that drift up in the background.
+// little icons (emojis) that drift up in the background.
 const particles=[];
 function mkP(randY){
   return{
@@ -152,7 +159,7 @@ function mkP(randY){
     r:2+Math.random()*4.5,
     a:0, ma:.22+Math.random()*.45,
     ph:Math.random()*Math.PI*2,
-    isF:Math.random()>.18,
+    emoji: rand(EMOJIS),  // random emoji từ danh sách
     col:rand(COLORS)
   };
 }
@@ -163,24 +170,17 @@ function initParticles(){
 }
 function drawAmbient(ts){
   bgX.clearRect(0,0,W,H);
-  bgX.globalCompositeOperation='lighter';
   for(const p of particles){
     p.a=Math.min(p.ma,p.a+.006);
     p.y-=p.vy;
     p.x+=p.vx+Math.sin(ts*.0007+p.ph)*.25;
     if(p.y<-12) Object.assign(p,mkP(false));
     bgX.globalAlpha=p.a;
-    bgX.fillStyle=p.col;
-    if(p.isF){
-      flowerPath(bgX,p.x,p.y,p.r);
-      bgX.fill();
-    } else {
-      bgX.beginPath();
-      bgX.arc(p.x,p.y,p.r*.55,0,Math.PI*2);
-      bgX.fill();
-    }
+    bgX.font = `${p.r * 2.2}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    bgX.textAlign = 'center';
+    bgX.textBaseline = 'middle';
+    bgX.fillText(p.emoji, p.x, p.y);
   }
-  bgX.globalCompositeOperation='source-over';
   bgX.globalAlpha=1;
 }
 
@@ -200,10 +200,8 @@ function updatePhases(ts){
     const t=Math.min(1,(ts-phaseStart)/dur);
     const e=easeOutCubic(t);
     flower.x=rollFromX+(rollToX-rollFromX)*e;
-    // little hops as it rolls. amplitude shrinks over time so it settles
     const amp = 14 * Math.pow(1-t, 1.6);
     flower.y = groundY - Math.abs(Math.sin(t * Math.PI * 4)) * amp;
-    // spin it like a wheel - rotation tied to distance traveled
     const dist = flower.x - rollFromX;
     flower.rot=dist/flower.size*0.55;
     trailPts.push({x:flower.x,y:flower.y});
@@ -230,7 +228,6 @@ function drawTrail(){
   if(trailPts.length < 2 || trailAlpha <= 0) return;
   tX.save();
   tX.lineCap = 'round'; tX.lineJoin = 'round';
-  // fat soft glow underneath
   tX.strokeStyle = '#ff1493';
   tX.lineWidth   = 10;
   tX.globalAlpha = trailAlpha * 0.22;
@@ -239,7 +236,6 @@ function drawTrail(){
   tX.moveTo(trailPts[0].x, trailPts[0].y);
   for(let i=1;i<trailPts.length;i++) tX.lineTo(trailPts[i].x, trailPts[i].y);
   tX.stroke();
-  // sharp light-pink line on top
   tX.globalAlpha=trailAlpha*0.85;
   tX.strokeStyle='#ffc2d4';
   tX.lineWidth=2.6;
@@ -261,12 +257,10 @@ function drawFlowerIcon(){
   tX.rotate(flower.rot);
   tX.scale(flower.scale, flower.scale);
   tX.globalAlpha = flower.alpha;
-  // outer glowing flower
   tX.shadowBlur=30; tX.shadowColor='#ff1493';
   tX.fillStyle='#ff1493';
   flowerPath(tX,0,-flower.size*0.4,flower.size);
   tX.fill();
-  // brighter flower on top
   tX.shadowBlur=12; tX.shadowColor='#ff69b4';
   tX.fillStyle='#ff69b4';
   flowerPath(tX,0,-flower.size*0.4+2,flower.size*0.78);
@@ -285,7 +279,7 @@ function drawFlowerIcon(){
 function heartPoint(t){
   const hx=16*Math.pow(Math.sin(t),3);
   const hy=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-  return{hx,hy}; // hy: −5 (top dip) … +17 (bottom)
+  return{hx,hy};
 }
 
 
@@ -296,32 +290,26 @@ function addSeg(x,y,ex,ey,w,delay){
 
 function buildHeartTree(rootX,rootY){
   branches = [];
-  const sc = Math.min(W,H) * .024;     // overall heart size
+  const sc = Math.min(W,H) * .024;
   const stemH = H * .07;
   const stemTopY = rootY - stemH;
 
-
-  // tiny stem at the bottom
   addSeg(rootX, rootY, rootX, stemTopY, 11, 0);
 
-
-  // two spines tracing the outline of the heart
   const N = 26;
   for(const dir of [+1, -1]){
     let pX = rootX, pY = stemTopY, pW = 10;
     let delay = 180;
     for(let i=1; i<=N; i++){
-      const t = Math.PI + dir * Math.PI * i / N;   // π→2π for one side, π→0 for the other
+      const t = Math.PI + dir * Math.PI * i / N;
       const { hx, hy } = heartPoint(t);
       const cx = rootX + hx * sc;
       const cy = stemTopY - (17 - hy) * sc;
       const w  = Math.max(1.6, pW * .945);
       addSeg(pX, pY, cx, cy, w, delay);
 
-
-      // every other spine point, sprout a little branch inward
       if(i>2 && i<N-1 && i%2===0){
-        const heartCY = stemTopY - 11*sc;     // approx middle of the heart
+        const heartCY = stemTopY - 11*sc;
         const ang = Math.atan2(heartCY-cy, rootX-cx) + (Math.random()-.5)*.5;
         sproutInner(cx,cy, ang, sc*(2.4+Math.random()*1.8), w*.55, delay+40);
       }
@@ -343,16 +331,13 @@ function sproutInner(x,y,ang,len,w,delay){
 }
 
 
-// each branch is drawn twice: a wide soft glow then a sharp pink core
 function drawBranch(c,x1,y1,x2,y2,w){
   c.lineCap='round';
-  // outer glow
   c.strokeStyle='#ff1493';
   c.lineWidth=Math.max(1,w*.55)+3;
   c.globalAlpha=.16;
   c.shadowBlur=14; c.shadowColor='#ff69b4';
   c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
-  // crisp pink core
   c.globalAlpha=1;
   c.shadowBlur=5;
   c.strokeStyle='#ffc2d4';
@@ -370,15 +355,13 @@ function bakeTree(){
 }
 
 
-// the leaves (tiny flowers) that bloom over the tree once it's grown
 function spawnLeaves(rootX,rootY){
   const sc=Math.min(W,H)*.024;
   const stemH=H*.07;
   const heartCX=rootX;
-  const heartCY=(rootY-stemH)-11*sc;     // vertical center of heart
+  const heartCY=(rootY-stemH)-11*sc;
   const Rx=16*sc*1.05;
   const Ry=11*sc*1.05;
-  // scatter ~460 flowers inside the heart shape
   for(let i=0;i<460;i++){
     const t=Math.random()*Math.PI*2;
     const { hx, hy } = heartPoint(t);
@@ -391,7 +374,6 @@ function spawnLeaves(rootX,rootY){
       d:performance.now()+i*1.6+Math.random()*420
     });
   }
-  // ~140 more hugging the outline so the silhouette pops
   for(let i=0;i<140;i++){
     const t=Math.random()*Math.PI*2;
     const { hx, hy } = heartPoint(t);
@@ -406,20 +388,16 @@ function spawnLeaves(rootX,rootY){
 }
 
 
-// once all leaves have bloomed, bake them into one cached canvas.
-// after this we just blit one image per frame instead of redrawing 600 flowers.
 function bakeLeaves(){
   leavesBaked=document.createElement('canvas');
   leavesBaked.width=W; leavesBaked.height=H;
   const x=leavesBaked.getContext('2d');
-  // additive blend so overlapping flowers brighten naturally
   x.globalCompositeOperation='lighter';
   for(const h of leaves){
     x.fillStyle=h.col;
     flowerPath(x,h.x,h.y,h.s);
     x.fill();
   }
-  // sprinkle a soft glow on a few of them
   x.globalCompositeOperation='source-over';
   x.shadowBlur=10;
   for(const h of leaves){
@@ -434,16 +412,12 @@ function bakeLeaves(){
 }
 
 
-// the main loop. runs forever, draws each layer in order.
 function animate(ts){
   drawAmbient(ts);
   tX.clearRect(0,0,W,H);
 
-
   if(phase!=='idle') updatePhases(ts);
 
-
-  // tree (only kicks in after the flower settles)
   if(clickTime!==null){
     const el=ts-clickTime;
     if(treeBaked){
@@ -466,7 +440,6 @@ function animate(ts){
         spawnLeaves(treeX,treeY);
       }
     }
-    // leaves
     if(leavesBaked){
       tX.drawImage(leavesBaked,0,0);
     } else if(treeDone){
@@ -491,46 +464,42 @@ function animate(ts){
     }
   }
 
-
-  // glowing trail + animated flower go on top, only during the intro phases
   if(phase==='drop'||phase==='roll'||phase==='settle'){
     drawTrail();
     drawFlowerIcon();
   }
 
-
   requestAnimationFrame(animate);
 }
 
 
-// click handler. picks up where the html flower was and starts the drop
 function startAnimation(){
-  if(phase !== 'idle') return;   // ignore double-clicks
+  // Phát nhạc khi click
+  const music = document.getElementById('bg-music');
+  if(music) {
+    music.volume = 0.4;
+    music.play().catch(e => console.log('Audio play failed:', e));
+  }
 
+  if(phase !== 'idle') return;
 
   const el = document.getElementById('initial');
   const flowerEl = el.querySelector('.flower');
   const r = flowerEl.getBoundingClientRect();
 
-
-  // hand-off: canvas flower starts exactly where the html one was
   flower.x = r.left + r.width/2;
   flower.y = r.top  + r.height/2;
   flower.size = Math.max(38, Math.min(64, r.width * 0.55));
   flower.alpha = 1; flower.rot = 0; flower.scale = 1;
 
-
   el.style.opacity = '0';
   setTimeout(() => el.style.display = 'none', 300);
-
 
   groundY   = H * 0.86;
   dropFromY = flower.y;
   rollFromX = flower.x;
-  // where the tree ends up: rolls right on desktop, centered on mobile
   rollToX = (W < 780) ? W * 0.5 : W * 0.70;
   treeX = rollToX; treeY = groundY;
-
 
   trailPts = [{ x: flower.x, y: flower.y }];
   trailAlpha = 1;
@@ -539,7 +508,6 @@ function startAnimation(){
 }
 
 
-// types out the messages one character at a time, with a blinking cursor
 function startTypewriter(){
   const msg=document.getElementById('message');
   msg.style.opacity='1';
