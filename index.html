@@ -36,7 +36,7 @@
       z-index: 1;
     }
 
-    /* Màn hình mở đầu */
+    /* Nút mở đầu */
     #initial {
       position: fixed;
       bottom: 24%;
@@ -79,18 +79,29 @@
     }
 
     /*
+      CỘT BÊN TRÁI:
+      Ảnh và lời chúc chung một lề trái.
+      Giới hạn rộng 360px để không lấn sang khu vực cây bên phải.
+    */
+    #birthday-photo,
+    #message {
+      left: 4vw;
+      width: min(30vw, 360px);
+      max-width: 360px;
+    }
+
+    /*
       ẢNH:
-      - Ban đầu opacity = 0 và visibility = hidden
-      - JS sẽ thêm class .visible sau khi animation hoa hoàn tất
+      - Chỉ hiện khi JS thêm class "visible".
+      - Nằm ở 12% chiều cao màn hình.
+      - Không dùng translateY nên không bị đẩy ra khỏi trang.
     */
     #birthday-photo {
       position: fixed;
-      top: 50%;
-      left: 4%;
+      top: 12vh;
       z-index: 10;
-      width: min(23vw, 270px);
+      width: min(24vw, 270px);
       aspect-ratio: 1 / 1;
-      transform: translateY(calc(-50% - 190px));
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -107,34 +118,34 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border: 2px solid rgba(255, 105, 180, 0.56);
+      border: 2px solid rgba(255, 105, 180, 0.58);
       border-radius: 18px;
       box-shadow: 0 0 24px rgba(255, 20, 147, 0.38);
     }
 
     /*
       LỜI CHÚC:
-      - Nằm bên trái, bên dưới ảnh
-      - Chỉ hiện sau khi animation hoàn tất
+      - top được tính từ vị trí ảnh + chiều cao ảnh.
+      - Khi nhiều dòng, khung chỉ nở xuống dưới.
+      - Không dùng translate(-50%) theo chiều dọc.
     */
     #message {
       position: fixed;
-      top: 50%;
-      left: 4%;
+      top: calc(12vh + min(24vw, 270px) + 22px);
       z-index: 10;
-      width: min(33vw, 400px);
-      max-width: 400px;
-      padding: 18px 24px;
+      min-height: 130px;
+      max-height: 49vh;
+      overflow: hidden;
+      padding: 16px 20px;
       color: #fff;
       opacity: 0;
       pointer-events: none;
       text-align: center;
-      transform: translateY(-50%);
       transition: opacity 0.75s ease;
       font-family: "Dancing Script", cursive;
-      font-size: clamp(18px, 2.1vw, 28px);
-      line-height: 1.75;
-      background: rgba(15, 0, 12, 0.45);
+      font-size: clamp(17px, 1.7vw, 25px);
+      line-height: 1.7;
+      background: rgba(15, 0, 12, 0.48);
       border: 1px solid rgba(255, 105, 180, 0.25);
       border-radius: 16px;
       box-shadow: 0 0 22px rgba(255, 20, 147, 0.16);
@@ -142,6 +153,9 @@
 
     #message span {
       display: block;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: normal;
       text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff1493;
     }
 
@@ -151,28 +165,28 @@
       }
     }
 
-    /* Mobile */
+    /* Bố cục điện thoại */
     @media (max-width: 780px) {
       #initial {
         bottom: 30%;
       }
 
       #birthday-photo {
-        top: 7%;
+        top: 6vh;
         left: 50%;
-        width: min(38vw, 190px);
+        width: min(36vw, 180px);
         transform: translateX(-50%);
       }
 
       #message {
-        top: auto;
-        bottom: 6%;
+        top: calc(6vh + min(36vw, 180px) + 18px);
         left: 50%;
         width: 88%;
         max-width: 420px;
+        max-height: 43vh;
         padding: 14px 18px;
         transform: translateX(-50%);
-        font-size: clamp(15px, 4.2vw, 22px);
+        font-size: clamp(15px, 4.1vw, 22px);
       }
     }
   </style>
@@ -180,9 +194,8 @@
 
 <body>
   <!--
-    Nhạc nền:
-    Cách nên dùng: upload file birthday.mp3 vào cùng thư mục index.html
-    Nếu file nằm trong thư mục audio thì đổi thành: ./audio/birthday.mp3
+    Upload birthday.mp3 vào cùng thư mục với index.html.
+    Nếu đặt trong audio/: đổi src thành ./audio/birthday.mp3
   -->
   <audio id="bg-music" loop preload="auto">
     <source src="./birthday.mp3" type="audio/mpeg">
@@ -190,9 +203,8 @@
   </audio>
 
   <!--
-    Ảnh sinh nhật:
-    Upload ảnh vào cùng thư mục với index.html và đặt tên birthday.jpg.
-    Hoặc nếu bỏ vào thư mục img: src="./img/birthday.jpg"
+    Upload birthday.jpg vào cùng thư mục với index.html.
+    Nếu dùng tên file khác thì đổi src ở dòng dưới.
   -->
   <div id="birthday-photo">
     <img src="./birthday.jpg" alt="Birthday photo">
@@ -201,13 +213,11 @@
   <canvas id="bg"></canvas>
   <canvas id="tree"></canvas>
 
-  <!-- Nút mở animation -->
   <div id="initial" onclick="startAnimation()">
     <div class="flower">🌸</div>
     <div class="label">Click Me :)<br>Birthday Queen!</div>
   </div>
 
-  <!-- Lời chúc được JS render lần lượt -->
   <div id="message"></div>
 
   <script>
@@ -234,8 +244,8 @@
     window.addEventListener("resize", resize);
 
     /*
-      SỬA LỜI CHÚC Ở ĐÂY.
-      Mỗi chuỗi trong mảng là một dòng hiện lần lượt.
+      Sửa lời chúc tại đây.
+      Mỗi phần tử là một dòng xuất hiện lần lượt.
     */
     const LINES = [
       "Hey you 🌸",
@@ -270,11 +280,7 @@
 
     const rand = array => array[Math.floor(Math.random() * array.length)];
 
-    /*
-      GIẢM LAG:
-      Số icon nền chỉ còn 25–55.
-      Không tăng số này nếu web bị chậm trên điện thoại.
-    */
+    /* Icon nền tối ưu cho hiệu năng */
     const particles = [];
 
     function makeParticle(randomY) {
@@ -294,17 +300,16 @@
     function initParticles() {
       particles.length = 0;
 
-      const count = Math.min(55, Math.max(25, Math.round((W * H) / 30000)));
+      const count = Math.min(
+        55,
+        Math.max(25, Math.round((W * H) / 30000))
+      );
 
       for (let i = 0; i < count; i++) {
         particles.push(makeParticle(true));
       }
     }
 
-    /*
-      Nền được redraw 24 FPS, không phải 60 FPS:
-      giảm đáng kể lag khi render emoji canvas.
-    */
     let lastParticleDraw = 0;
     const particleFPS = 24;
     const particleInterval = 1000 / particleFPS;
@@ -334,8 +339,8 @@
       bgX.globalAlpha = 1;
     }
 
-    function flowerPath(c, cx, cy, size) {
-      c.beginPath();
+    function flowerPath(context, cx, cy, size) {
+      context.beginPath();
 
       const petals = 5;
 
@@ -344,11 +349,11 @@
         const px = cx + Math.cos(angle) * size * 0.9;
         const py = cy + Math.sin(angle) * size * 0.9;
 
-        c.moveTo(cx, cy);
-        c.arc(px, py, size * 0.55, 0, Math.PI * 2);
+        context.moveTo(cx, cy);
+        context.arc(px, py, size * 0.55, 0, Math.PI * 2);
       }
 
-      c.closePath();
+      context.closePath();
     }
 
     let branches = [];
@@ -496,11 +501,9 @@
       tX.restore();
     }
 
-    /*
-      Tạo cây có dáng hình trái tim, nhưng hoa được render theo số lượng nhẹ hơn.
-    */
     function heartPoint(t) {
       const hx = 16 * Math.pow(Math.sin(t), 3);
+
       const hy = -(
         13 * Math.cos(t) -
         5 * Math.cos(2 * t) -
@@ -534,11 +537,25 @@
       const shrink = 0.62 + Math.random() * 0.12;
 
       if (Math.random() > 0.32) {
-        growInnerBranch(endX, endY, angle - spread, length * shrink, width * 0.66, delay + 70);
+        growInnerBranch(
+          endX,
+          endY,
+          angle - spread,
+          length * shrink,
+          width * 0.66,
+          delay + 70
+        );
       }
 
       if (Math.random() > 0.32) {
-        growInnerBranch(endX, endY, angle + spread, length * shrink, width * 0.66, delay + 70);
+        growInnerBranch(
+          endX,
+          endY,
+          angle + spread,
+          length * shrink,
+          width * 0.66,
+          delay + 70
+        );
       }
     }
 
@@ -578,7 +595,10 @@
 
           if (i > 2 && i < points - 1 && i % 3 === 0) {
             const centerY = stemTopY - 11 * scale;
-            const angle = Math.atan2(centerY - currentY, rootX - currentX) + (Math.random() - 0.5) * 0.45;
+
+            const angle =
+              Math.atan2(centerY - currentY, rootX - currentX) +
+              (Math.random() - 0.5) * 0.45;
 
             growInnerBranch(
               currentX,
@@ -603,6 +623,7 @@
       context.strokeStyle = "#ffc2d4";
       context.lineWidth = Math.max(1, width * 0.55);
       context.globalAlpha = 0.9;
+
       context.beginPath();
       context.moveTo(x1, y1);
       context.lineTo(x2, y2);
@@ -629,8 +650,9 @@
     }
 
     /*
-      GIẢM LAG:
-      Chỉ tạo 180 hoa thay vì 600 như bản cũ.
+      Chỉ có 180 hoa:
+      140 hoa bên trong + 40 hoa viền ngoài.
+      Ít hơn nhiều so với code trước nên đỡ lag.
     */
     function spawnLeaves(rootX, rootY) {
       leaves = [];
@@ -644,29 +666,43 @@
       const radiusX = 16 * scale * 1.05;
       const radiusY = 11 * scale * 1.05;
 
-      /* Hoa ở vùng bên trong */
       for (let i = 0; i < 140; i++) {
         const t = Math.random() * Math.PI * 2;
         const { hx, hy } = heartPoint(t);
         const scatter = 0.2 + Math.random() * 0.8;
 
         leaves.push({
-          x: centerX + (hx / 16) * radiusX * scatter + (Math.random() - 0.5) * 18,
-          y: centerY + ((hy - 6) / 11) * radiusY * scatter + (Math.random() - 0.5) * 18,
+          x:
+            centerX +
+            (hx / 16) * radiusX * scatter +
+            (Math.random() - 0.5) * 18,
+
+          y:
+            centerY +
+            ((hy - 6) / 11) * radiusY * scatter +
+            (Math.random() - 0.5) * 18,
+
           size: 4 + Math.random() * 7,
           color: rand(COLORS),
           delay: performance.now() + i * 6 + Math.random() * 360
         });
       }
 
-      /* Hoa viền ngoài */
       for (let i = 0; i < 40; i++) {
         const t = Math.random() * Math.PI * 2;
         const { hx, hy } = heartPoint(t);
 
         leaves.push({
-          x: centerX + (hx / 16) * radiusX + (Math.random() - 0.5) * 10,
-          y: centerY + ((hy - 6) / 11) * radiusY + (Math.random() - 0.5) * 10,
+          x:
+            centerX +
+            (hx / 16) * radiusX +
+            (Math.random() - 0.5) * 10,
+
+          y:
+            centerY +
+            ((hy - 6) / 11) * radiusY +
+            (Math.random() - 0.5) * 10,
+
           size: 3 + Math.random() * 4,
           color: rand(COLORS),
           delay: performance.now() + i * 8 + Math.random() * 300
@@ -699,20 +735,25 @@
       if (clickTime !== null) {
         const elapsed = ts - clickTime;
 
-        /* Vẽ cành cây */
         if (treeBaked) {
           tX.drawImage(treeBaked, 0, 0);
         } else {
           let treeFinished = true;
 
           for (const branch of branches) {
-            const progress = Math.min(1, Math.max(0, (elapsed - branch.delay) / 220));
+            const progress = Math.min(
+              1,
+              Math.max(0, (elapsed - branch.delay) / 220)
+            );
 
             if (progress < 1) treeFinished = false;
             if (progress <= 0) continue;
 
-            const currentX = branch.x + (branch.endX - branch.x) * progress;
-            const currentY = branch.y + (branch.endY - branch.y) * progress;
+            const currentX =
+              branch.x + (branch.endX - branch.x) * progress;
+
+            const currentY =
+              branch.y + (branch.endY - branch.y) * progress;
 
             drawBranch(
               tX,
@@ -731,14 +772,16 @@
           }
         }
 
-        /* Vẽ hoa */
         if (leavesBaked) {
           tX.drawImage(leavesBaked, 0, 0);
         } else if (treeDone) {
           let leavesFinished = true;
 
           for (const leaf of leaves) {
-            const progress = Math.min(1, Math.max(0, (ts - leaf.delay) / 150));
+            const progress = Math.min(
+              1,
+              Math.max(0, (ts - leaf.delay) / 150)
+            );
 
             if (progress < 1) leavesFinished = false;
             if (progress <= 0) continue;
@@ -759,7 +802,11 @@
         }
       }
 
-      if (phase === "drop" || phase === "roll" || phase === "settle") {
+      if (
+        phase === "drop" ||
+        phase === "roll" ||
+        phase === "settle"
+      ) {
         drawTrail();
         drawFlowerIcon();
       }
@@ -770,11 +817,11 @@
     function startAnimation() {
       if (phase !== "idle") return;
 
-      /* Phát nhạc sau tương tác click để không bị trình duyệt chặn autoplay */
       const music = document.getElementById("bg-music");
 
       if (music) {
         music.volume = 0.35;
+
         music.play().catch(error => {
           console.log("Không thể phát nhạc:", error);
         });
@@ -802,10 +849,10 @@
       rollFromX = flower.x;
 
       /*
-        Desktop: cây nằm bên phải.
-        Mobile: cây nằm giữa.
+        Cây desktop ở 76% chiều ngang:
+        chừa đủ khu vực nội dung bên trái.
       */
-      rollToX = W < 780 ? W * 0.5 : W * 0.72;
+      rollToX = W < 780 ? W * 0.5 : W * 0.76;
 
       treeX = rollToX;
       treeY = groundY;
@@ -818,7 +865,7 @@
     }
 
     /*
-      Ảnh và lời chúc chỉ xuất hiện sau khi hoa nở hoàn tất.
+      Ảnh và khung lời chúc chỉ hiện sau khi hoa nở hoàn tất.
     */
     function startTypewriter() {
       const message = document.getElementById("message");
@@ -847,6 +894,7 @@
             characterIndex++;
           } else {
             clearInterval(typing);
+
             span.style.borderRight = "none";
             span.style.animation = "none";
 
