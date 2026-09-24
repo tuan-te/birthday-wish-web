@@ -27,12 +27,20 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
   text-shadow:0 0 10px #ff69b4,0 0 22px #ff1493;
 }
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+
 #message{
-  position:fixed;top:50%;left:4%;transform:translateY(-50%);
-  z-index:10;opacity:0;transition:opacity .55s;
+  position:fixed;
+  top:52%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index:10;
+  opacity:0;
+  transition:opacity .55s;
   font-family:'Dancing Script',cursive;
   font-size:clamp(18px,2.3vw,30px);
-  line-height:2;pointer-events:none;color:#fff;
+  line-height:2;
+  pointer-events:none;
+  color:#fff;
   padding:18px 26px;
   max-width:42%;
   background:rgba(15,0,12,.42);
@@ -41,6 +49,7 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
   border:1px solid rgba(255,105,180,.22);
   border-radius:14px;
   box-shadow:0 0 30px rgba(255,20,147,.12);
+  text-align:center;
 }
 #message span{
   display:block;
@@ -48,26 +57,61 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
 }
 @keyframes blink{50%{border-color:transparent}}
 
+/* Khung ảnh sinh nhật 1:1 */
+#birthday-photo{
+  position:fixed;
+  top:10%;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:9;
+  width:28vmin;
+  height:28vmin;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+#birthday-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:16px;
+  box-shadow:0 10px 40px rgba(255,20,147,.35);
+  border:2px solid rgba(255,105,180,.5);
+}
 
 @media (max-width:780px){
   #initial{bottom:30%}
   #message{
-    top:auto;bottom:5%;left:50%;
+    top:auto;
+    bottom:8%;
+    left:50%;
     transform:translateX(-50%);
     max-width:88%;
     text-align:center;
     font-size:clamp(15px,4.2vw,22px);
     padding:14px 20px;
   }
+  #birthday-photo{
+    top:6%;
+    width:36vmin;
+    height:36vmin;
+  }
 }
 </style>
 </head>
 <body>
+
 <!-- Nhạc nền -->
 <audio id="bg-music" loop>
   <source src="https://www.soundhelix.com/examples/mp3/Soundhelix-Song-08.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
+
+<!-- Khung ảnh 1:1 -->
+<div id="birthday-photo">
+  <img src="https://i.imgur.com/ANH_CUA_BAN.png" alt="Birthday photo">
+</div>
 
 <canvas id="bg"></canvas>
 <canvas id="tree"></canvas>
@@ -76,13 +120,8 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
   <div class="label">Click Me :)<br>Birthday Queen !</div>
 </div>
 <div id="message"></div>
-<script>
-/*
-   a little birthday card, just for you <3
-   click the flower -> watch what happens
-   ~ made with love
-*/
 
+<script>
 const bgC=document.getElementById('bg'), bgX=bgC.getContext('2d');
 const tC =document.getElementById('tree'),tX =tC.getContext('2d');
 let W, H;
@@ -107,7 +146,6 @@ const LINES=[
 const COLORS=['#ff69b4','#ff1493','#e0115f','#ff4d6d','#ff85a1','#ffb3c6','#ffc2d4','#d63384','#c71585','#ff6b9d','#ffa07a'];
 const rand=a=>a[Math.floor(Math.random()*a.length)];
 
-// Danh sách emoji cho particles
 const EMOJIS = ['🌸','🌺','🌷','🌹','💕','💖','💗','🎁','🎂','🧁','✨','⭐','🌟','💫','🎈','🎉','🪩'];
 
 let branches = [], leaves = [];
@@ -136,7 +174,6 @@ function flowerPath(c,cx,cy,s){
   c.closePath();
 }
 
-// Tối ưu: ít particles hơn
 const particles=[];
 function mkP(randY){
   return{
@@ -153,12 +190,10 @@ function mkP(randY){
 }
 function initParticles(){
   particles.length=0;
-  // Giảm số lượng particles
   const N = Math.min(100, Math.max(50, Math.round(W*H/18000)));
   for(let i=0;i<N;i++) particles.push(mkP(true));
 }
 
-// Tối ưu: giới hạn FPS cho particles
 let lastParticleDraw = 0;
 const particleFPS = 35;
 const particleInterval = 1000 / particleFPS;
@@ -174,8 +209,8 @@ function drawAmbient(ts){
     p.x+=p.vx+Math.sin(ts*.0007+p.ph)*.25;
     if(p.y<-12) Object.assign(p,mkP(false));
     bgX.globalAlpha=p.a;
-    // Giảm kích thước emoji
-    bgX.font = `${p.r * 1.5}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+    // Tăng kích thước emoji
+    bgX.font = `${p.r * 3.0}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
     bgX.textAlign = 'center';
     bgX.textBaseline = 'middle';
     bgX.fillText(p.emoji, p.x, p.y);
