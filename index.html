@@ -78,33 +78,35 @@
     }
 
     /*
-      Cột nội dung bên trái:
-      Ảnh và khung lời chúc cùng nằm trong cột này.
-      align-items:center bảo đảm ảnh luôn nằm chính giữa khung chữ.
+      CỘT BÊN TRÁI:
+      - Rộng hơn để chữ ưu tiên mở theo chiều ngang.
+      - Tối đa 43vw hoặc 580px.
+      - Cây đặt khoảng 80% màn hình nên vẫn có khoảng trống bên phải.
     */
     #content-column {
       position: fixed;
-      top: 9vh;
-      left: 4vw;
+      top: 8vh;
+      left: 3vw;
       z-index: 10;
-      width: min(30vw, 360px);
-      max-width: 360px;
+
+      width: min(43vw, 580px);
+      max-width: 580px;
 
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
 
       pointer-events: none;
     }
 
     /*
-      Ảnh 1:1:
-      width:100% nên cùng bề rộng khung chữ.
-      Chỉ hiện sau animation nhờ class visible.
+      Ảnh vuông:
+      - Nằm chính giữa content-column.
+      - Chỉ xuất hiện sau khi cây hoa nở xong.
     */
     #birthday-photo {
-      width: 100%;
+      width: min(28vw, 300px);
       aspect-ratio: 1 / 1;
 
       opacity: 0;
@@ -132,23 +134,29 @@
     }
 
     /*
-      Khung lời chúc:
-      - width 100% = cùng width ảnh.
-      - Vì cả ảnh lẫn chữ ở trong flex-column nên không thể lệch tâm.
-      - max-height để lời chúc quá dài không phá bố cục.
+      KHUNG LỜI CHÚC:
+      - width: fit-content: khung sẽ nở ngang theo câu chữ.
+      - max-width: 100%: không vượt ra khỏi content-column.
+      - white-space: nowrap ở desktop để ưu tiên một dòng.
+      - Khi dòng quá dài, max-width vẫn giới hạn nó an toàn.
     */
     #message {
-      width: 100%;
-      max-height: 42vh;
-      overflow: hidden;
+      width: fit-content;
+      min-width: min(340px, 100%);
+      max-width: 100%;
 
-      padding: 16px 18px;
+      min-height: 110px;
+      max-height: 58vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      padding: 16px 24px;
       color: #fff;
       opacity: 0;
       text-align: center;
 
       font-family: "Dancing Script", cursive;
-      font-size: clamp(17px, 1.7vw, 25px);
+      font-size: clamp(17px, 1.75vw, 26px);
       line-height: 1.65;
 
       background: rgba(15, 0, 12, 0.48);
@@ -156,14 +164,22 @@
       border-radius: 16px;
       box-shadow: 0 0 16px rgba(255, 20, 147, 0.13);
 
-      transition: opacity 0.7s ease;
+      transition:
+        opacity 0.7s ease,
+        width 0.25s ease;
     }
 
     #message span {
       display: block;
+      width: max-content;
       max-width: 100%;
-      overflow-wrap: break-word;
-      text-shadow: 0 0 5px #ff69b4, 0 0 9px #ff1493;
+
+      white-space: nowrap;
+      overflow-wrap: anywhere;
+
+      text-shadow:
+        0 0 5px #ff69b4,
+        0 0 9px #ff1493;
     }
 
     @keyframes blink {
@@ -172,8 +188,9 @@
       }
     }
 
-    /* Điện thoại */
+    /* Mobile: nội dung đặt giữa, tree ở dưới/trung tâm */
     @media (max-width: 780px) {
+      /* Tắt icon nền trên điện thoại để bớt lag */
       #bg {
         display: none;
       }
@@ -185,9 +202,9 @@
       #content-column {
         top: 5vh;
         left: 50%;
-        width: 82vw;
-        max-width: 360px;
-        gap: 16px;
+        width: 88vw;
+        max-width: 460px;
+        gap: 14px;
         transform: translateX(-50%);
       }
 
@@ -196,10 +213,17 @@
       }
 
       #message {
-        width: 100%;
-        max-height: 39vh;
-        padding: 14px 18px;
-        font-size: clamp(15px, 4.1vw, 22px);
+        width: fit-content;
+        min-width: min(82vw, 330px);
+        max-width: 100%;
+        max-height: 44vh;
+
+        padding: 14px 16px;
+        font-size: clamp(15px, 4vw, 22px);
+      }
+
+      #message span {
+        white-space: normal;
       }
     }
   </style>
@@ -207,9 +231,8 @@
 
 <body>
   <!--
-    Nhạc nền:
-    - Upload file birthday.mp3 vào cùng thư mục với index.html.
-    - Nếu file có tên khác, đổi phần src phía dưới.
+    Upload birthday.mp3 vào cùng thư mục với index.html.
+    Nếu file có tên khác, sửa lại đường dẫn src.
   -->
   <audio id="bg-music" loop preload="auto">
     <source src="./birthday.mp3" type="audio/mpeg">
@@ -217,10 +240,8 @@
   </audio>
 
   <!--
-    Ảnh:
-    - Hiện tại dùng image.jpg.
-    - Bạn phải upload image.jpg cùng thư mục index.html.
-    - Nếu dùng tên birthday.jpg, đổi src="./birthday.jpg".
+    Upload image.jpg vào cùng thư mục với index.html.
+    Nếu ảnh có tên birthday.jpg thì đổi src="./birthday.jpg".
   -->
   <div id="content-column">
     <div id="birthday-photo">
@@ -262,8 +283,8 @@
     window.addEventListener("resize", resizeCanvas);
 
     /*
-      Sửa lời chúc tại đây.
-      Mỗi chuỗi là một dòng xuất hiện theo hiệu ứng gõ chữ.
+      Sửa lời chúc ở đây.
+      Mỗi chuỗi là một dòng được gõ dần.
     */
     const LINES = [
       "Hey you 🌸",
@@ -299,10 +320,8 @@
     const pick = list => list[Math.floor(Math.random() * list.length)];
 
     /*
-      Background particles rất nhẹ:
-      - Desktop: 10 đến 24 icon.
-      - Mobile: canvas này bị CSS tắt hoàn toàn.
-      - Chỉ update/vẽ 12 FPS.
+      PHẦN NỀN:
+      Chỉ 10–24 emoji, render ở 12 FPS để tránh lag.
     */
     const particles = [];
 
@@ -628,10 +647,6 @@
       }
     }
 
-    /*
-      Cây ít nhánh hơn:
-      points = 16 thay vì 23+.
-    */
     function buildFlowerTree(rootX, rootY) {
       branches = [];
 
@@ -730,10 +745,6 @@
       }
     }
 
-    /*
-      90 bông hoa tổng cộng:
-      70 bên trong + 20 viền ngoài.
-    */
     function createFlowers(rootX, rootY) {
       flowers = [];
 
@@ -950,13 +961,13 @@
       rollStartX = rollingFlower.x;
 
       /*
-        Desktop: Cây nằm 77% phía ngang màn hình.
-        Chừa khoảng trống lớn cho cột ảnh + lời chúc bên trái.
+        Cây đặt ở 80% màn hình desktop:
+        chừa vùng rộng cho text box nở theo chiều ngang.
       */
       rollEndX =
         width < 780
           ? width * 0.5
-          : width * 0.77;
+          : width * 0.80;
 
       heartTreeX = rollEndX;
       heartTreeY = groundY;
@@ -988,6 +999,12 @@
         textElement.style.animation = "blink .65s step-end infinite";
 
         message.appendChild(textElement);
+
+        /*
+          Ép browser đo lại size content để khung nở ngang theo câu đang gõ.
+        */
+        message.style.width = "fit-content";
+        message.style.maxWidth = "100%";
 
         const text = LINES[line];
         let character = 0;
