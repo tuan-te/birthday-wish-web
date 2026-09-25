@@ -23,8 +23,7 @@
 
     canvas {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       pointer-events: none;
     }
 
@@ -36,7 +35,7 @@
       z-index: 1;
     }
 
-    /* Nút mở đầu */
+    /* Màn hình mở đầu */
     #initial {
       position: fixed;
       bottom: 24%;
@@ -79,33 +78,41 @@
     }
 
     /*
-      CỘT BÊN TRÁI:
-      Ảnh và lời chúc chung một lề trái.
-      Giới hạn rộng 360px để không lấn sang khu vực cây bên phải.
+      Cột nội dung bên trái:
+      Ảnh và khung lời chúc cùng nằm trong cột này.
+      align-items:center bảo đảm ảnh luôn nằm chính giữa khung chữ.
     */
-    #birthday-photo,
-    #message {
+    #content-column {
+      position: fixed;
+      top: 9vh;
       left: 4vw;
+      z-index: 10;
       width: min(30vw, 360px);
       max-width: 360px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+      pointer-events: none;
     }
 
     /*
-      ẢNH:
-      - Chỉ hiện khi JS thêm class "visible".
-      - Nằm ở 12% chiều cao màn hình.
-      - Không dùng translateY nên không bị đẩy ra khỏi trang.
+      Ảnh 1:1:
+      width:100% nên cùng bề rộng khung chữ.
+      Chỉ hiện sau animation nhờ class visible.
     */
     #birthday-photo {
-      position: fixed;
-      top: 12vh;
-      z-index: 10;
-      width: min(24vw, 270px);
+      width: 100%;
       aspect-ratio: 1 / 1;
+
       opacity: 0;
       visibility: hidden;
-      pointer-events: none;
-      transition: opacity 0.75s ease, visibility 0.75s ease;
+
+      transition:
+        opacity 0.7s ease,
+        visibility 0.7s ease;
     }
 
     #birthday-photo.visible {
@@ -118,45 +125,45 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+
       border: 2px solid rgba(255, 105, 180, 0.58);
       border-radius: 18px;
-      box-shadow: 0 0 24px rgba(255, 20, 147, 0.38);
+      box-shadow: 0 0 18px rgba(255, 20, 147, 0.30);
     }
 
     /*
-      LỜI CHÚC:
-      - top được tính từ vị trí ảnh + chiều cao ảnh.
-      - Khi nhiều dòng, khung chỉ nở xuống dưới.
-      - Không dùng translate(-50%) theo chiều dọc.
+      Khung lời chúc:
+      - width 100% = cùng width ảnh.
+      - Vì cả ảnh lẫn chữ ở trong flex-column nên không thể lệch tâm.
+      - max-height để lời chúc quá dài không phá bố cục.
     */
     #message {
-      position: fixed;
-      top: calc(12vh + min(24vw, 270px) + 22px);
-      z-index: 10;
-      min-height: 130px;
-      max-height: 49vh;
+      width: 100%;
+      max-height: 42vh;
       overflow: hidden;
-      padding: 16px 20px;
+
+      padding: 16px 18px;
       color: #fff;
       opacity: 0;
-      pointer-events: none;
       text-align: center;
-      transition: opacity 0.75s ease;
+
       font-family: "Dancing Script", cursive;
       font-size: clamp(17px, 1.7vw, 25px);
-      line-height: 1.7;
+      line-height: 1.65;
+
       background: rgba(15, 0, 12, 0.48);
       border: 1px solid rgba(255, 105, 180, 0.25);
       border-radius: 16px;
-      box-shadow: 0 0 22px rgba(255, 20, 147, 0.16);
+      box-shadow: 0 0 16px rgba(255, 20, 147, 0.13);
+
+      transition: opacity 0.7s ease;
     }
 
     #message span {
       display: block;
       max-width: 100%;
       overflow-wrap: break-word;
-      word-break: normal;
-      text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff1493;
+      text-shadow: 0 0 5px #ff69b4, 0 0 9px #ff1493;
     }
 
     @keyframes blink {
@@ -165,27 +172,33 @@
       }
     }
 
-    /* Bố cục điện thoại */
+    /* Điện thoại */
     @media (max-width: 780px) {
+      #bg {
+        display: none;
+      }
+
       #initial {
         bottom: 30%;
       }
 
-      #birthday-photo {
-        top: 6vh;
+      #content-column {
+        top: 5vh;
         left: 50%;
-        width: min(36vw, 180px);
+        width: 82vw;
+        max-width: 360px;
+        gap: 16px;
         transform: translateX(-50%);
       }
 
+      #birthday-photo {
+        width: min(48vw, 190px);
+      }
+
       #message {
-        top: calc(6vh + min(36vw, 180px) + 18px);
-        left: 50%;
-        width: 88%;
-        max-width: 420px;
-        max-height: 43vh;
+        width: 100%;
+        max-height: 39vh;
         padding: 14px 18px;
-        transform: translateX(-50%);
         font-size: clamp(15px, 4.1vw, 22px);
       }
     }
@@ -194,8 +207,9 @@
 
 <body>
   <!--
-    Upload birthday.mp3 vào cùng thư mục với index.html.
-    Nếu đặt trong audio/: đổi src thành ./audio/birthday.mp3
+    Nhạc nền:
+    - Upload file birthday.mp3 vào cùng thư mục với index.html.
+    - Nếu file có tên khác, đổi phần src phía dưới.
   -->
   <audio id="bg-music" loop preload="auto">
     <source src="./birthday.mp3" type="audio/mpeg">
@@ -203,11 +217,17 @@
   </audio>
 
   <!--
-    Upload birthday.jpg vào cùng thư mục với index.html.
-    Nếu dùng tên file khác thì đổi src ở dòng dưới.
+    Ảnh:
+    - Hiện tại dùng image.jpg.
+    - Bạn phải upload image.jpg cùng thư mục index.html.
+    - Nếu dùng tên birthday.jpg, đổi src="./birthday.jpg".
   -->
-  <div id="birthday-photo">
-    <img src="./birthday.jpg" alt="Birthday photo">
+  <div id="content-column">
+    <div id="birthday-photo">
+      <img src="./image.jpg" alt="Birthday photo">
+    </div>
+
+    <div id="message"></div>
   </div>
 
   <canvas id="bg"></canvas>
@@ -218,34 +238,32 @@
     <div class="label">Click Me :)<br>Birthday Queen!</div>
   </div>
 
-  <div id="message"></div>
-
   <script>
-    const bgC = document.getElementById("bg");
-    const bgX = bgC.getContext("2d");
+    const bgCanvas = document.getElementById("bg");
+    const bgContext = bgCanvas.getContext("2d");
 
-    const tC = document.getElementById("tree");
-    const tX = tC.getContext("2d");
+    const treeCanvas = document.getElementById("tree");
+    const treeContext = treeCanvas.getContext("2d");
 
-    let W = 0;
-    let H = 0;
+    let width = 0;
+    let height = 0;
 
-    function resize() {
-      W = bgC.width = tC.width = window.innerWidth;
-      H = bgC.height = tC.height = window.innerHeight;
+    function resizeCanvas() {
+      width = bgCanvas.width = treeCanvas.width = window.innerWidth;
+      height = bgCanvas.height = treeCanvas.height = window.innerHeight;
 
-      treeBaked = null;
-      leavesBaked = null;
+      treeCache = null;
+      flowerCache = null;
 
-      if (treeDone) bakeTree();
-      if (leavesDone) bakeLeaves();
+      if (treeFinished) bakeTree();
+      if (flowersFinished) bakeFlowers();
     }
 
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", resizeCanvas);
 
     /*
       Sửa lời chúc tại đây.
-      Mỗi phần tử là một dòng xuất hiện lần lượt.
+      Mỗi chuỗi là một dòng xuất hiện theo hiệu ứng gõ chữ.
     */
     const LINES = [
       "Hey you 🌸",
@@ -270,319 +288,382 @@
       "#ffa07a"
     ];
 
-    const EMOJIS = [
-      "🌸", "🌺", "🌷", "🌹",
-      "💕", "💖", "💗",
-      "🎁", "🎂", "🧁",
-      "✨", "⭐", "🌟",
+    const FLOATING_EMOJIS = [
+      "🌸", "🌺", "🌷",
+      "💕", "💖",
+      "🎁", "🎂",
+      "✨", "⭐",
       "🎈", "🎉"
     ];
 
-    const rand = array => array[Math.floor(Math.random() * array.length)];
+    const pick = list => list[Math.floor(Math.random() * list.length)];
 
-    /* Icon nền tối ưu cho hiệu năng */
+    /*
+      Background particles rất nhẹ:
+      - Desktop: 10 đến 24 icon.
+      - Mobile: canvas này bị CSS tắt hoàn toàn.
+      - Chỉ update/vẽ 12 FPS.
+    */
     const particles = [];
 
-    function makeParticle(randomY) {
+    function createParticle(randomY) {
       return {
-        x: Math.random() * W,
-        y: randomY ? Math.random() * H : H + 16,
-        vy: 0.24 + Math.random() * 0.42,
-        vx: (Math.random() - 0.5) * 0.28,
-        r: 3 + Math.random() * 4,
+        x: Math.random() * width,
+        y: randomY ? Math.random() * height : height + 16,
+        velocityY: 0.16 + Math.random() * 0.24,
+        velocityX: (Math.random() - 0.5) * 0.16,
+        radius: 2.5 + Math.random() * 2.5,
         alpha: 0,
-        maxAlpha: 0.18 + Math.random() * 0.32,
-        phase: Math.random() * Math.PI * 2,
-        emoji: rand(EMOJIS)
+        maxAlpha: 0.12 + Math.random() * 0.22,
+        wave: Math.random() * Math.PI * 2,
+        emoji: pick(FLOATING_EMOJIS)
       };
     }
 
-    function initParticles() {
+    function initializeParticles() {
       particles.length = 0;
 
-      const count = Math.min(
-        55,
-        Math.max(25, Math.round((W * H) / 30000))
+      const total = Math.min(
+        24,
+        Math.max(10, Math.round((width * height) / 65000))
       );
 
-      for (let i = 0; i < count; i++) {
-        particles.push(makeParticle(true));
+      for (let i = 0; i < total; i++) {
+        particles.push(createParticle(true));
       }
     }
 
-    let lastParticleDraw = 0;
-    const particleFPS = 24;
-    const particleInterval = 1000 / particleFPS;
+    let lastBackgroundFrame = 0;
+    const backgroundFPS = 12;
+    const backgroundFrameInterval = 1000 / backgroundFPS;
 
-    function drawAmbient(ts) {
-      if (ts - lastParticleDraw < particleInterval) return;
+    function drawBackground(timestamp) {
+      if (timestamp - lastBackgroundFrame < backgroundFrameInterval) return;
 
-      lastParticleDraw = ts;
-      bgX.clearRect(0, 0, W, H);
+      lastBackgroundFrame = timestamp;
+      bgContext.clearRect(0, 0, width, height);
 
-      for (const p of particles) {
-        p.alpha = Math.min(p.maxAlpha, p.alpha + 0.012);
-        p.y -= p.vy;
-        p.x += p.vx + Math.sin(ts * 0.0007 + p.phase) * 0.18;
+      for (const particle of particles) {
+        particle.alpha = Math.min(
+          particle.maxAlpha,
+          particle.alpha + 0.012
+        );
 
-        if (p.y < -28) {
-          Object.assign(p, makeParticle(false));
+        particle.y -= particle.velocityY;
+
+        particle.x +=
+          particle.velocityX +
+          Math.sin(timestamp * 0.0007 + particle.wave) * 0.12;
+
+        if (particle.y < -30) {
+          Object.assign(particle, createParticle(false));
         }
 
-        bgX.globalAlpha = p.alpha;
-        bgX.font = `${p.r * 2.35}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-        bgX.textAlign = "center";
-        bgX.textBaseline = "middle";
-        bgX.fillText(p.emoji, p.x, p.y);
+        bgContext.globalAlpha = particle.alpha;
+        bgContext.font = `${particle.radius * 1.8}px "Apple Color Emoji", "Segoe UI Emoji", sans-serif`;
+        bgContext.textAlign = "center";
+        bgContext.textBaseline = "middle";
+        bgContext.fillText(particle.emoji, particle.x, particle.y);
       }
 
-      bgX.globalAlpha = 1;
+      bgContext.globalAlpha = 1;
     }
 
-    function flowerPath(context, cx, cy, size) {
+    function drawFlowerShape(context, centerX, centerY, size) {
       context.beginPath();
 
       const petals = 5;
 
       for (let i = 0; i < petals; i++) {
         const angle = (Math.PI * 2 / petals) * i;
-        const px = cx + Math.cos(angle) * size * 0.9;
-        const py = cy + Math.sin(angle) * size * 0.9;
+        const petalX = centerX + Math.cos(angle) * size * 0.9;
+        const petalY = centerY + Math.sin(angle) * size * 0.9;
 
-        context.moveTo(cx, cy);
-        context.arc(px, py, size * 0.55, 0, Math.PI * 2);
+        context.moveTo(centerX, centerY);
+        context.arc(petalX, petalY, size * 0.55, 0, Math.PI * 2);
       }
 
       context.closePath();
     }
 
     let branches = [];
-    let leaves = [];
+    let flowers = [];
 
-    let treeDone = false;
-    let leavesDone = false;
-    let clickTime = null;
+    let treeFinished = false;
+    let flowersFinished = false;
+    let treeStartTime = null;
 
-    let treeBaked = null;
-    let leavesBaked = null;
+    let treeCache = null;
+    let flowerCache = null;
 
-    let phase = "idle";
-    let phaseStart = 0;
+    let animationPhase = "idle";
+    let phaseStartTime = 0;
 
-    const flower = {
+    const rollingFlower = {
       x: 0,
       y: 0,
-      rot: 0,
+      rotation: 0,
       scale: 1,
       alpha: 1,
       size: 50
     };
 
-    let trailPoints = [];
-    let trailAlpha = 1;
+    let trail = [];
+    let trailOpacity = 1;
 
     let groundY = 0;
-    let dropFromY = 0;
-    let rollFromX = 0;
-    let rollToX = 0;
-    let treeX = 0;
-    let treeY = 0;
+    let dropStartY = 0;
+    let rollStartX = 0;
+    let rollEndX = 0;
+    let heartTreeX = 0;
+    let heartTreeY = 0;
 
-    const easeInQuad = t => t * t;
-    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+    const easeInQuad = value => value * value;
+    const easeOutCubic = value => 1 - Math.pow(1 - value, 3);
 
-    function updatePhases(ts) {
-      if (phase === "drop") {
-        const duration = 650;
-        const t = Math.min(1, (ts - phaseStart) / duration);
-        const eased = easeInQuad(t);
+    function updateFlowerAnimation(timestamp) {
+      if (animationPhase === "drop") {
+        const duration = 600;
+        const progress = Math.min(
+          1,
+          (timestamp - phaseStartTime) / duration
+        );
 
-        flower.y = dropFromY + (groundY - dropFromY) * eased;
-        flower.rot = eased * 0.35 * (rollToX < rollFromX ? -1 : 1);
+        const eased = easeInQuad(progress);
 
-        trailPoints.push({ x: flower.x, y: flower.y });
+        rollingFlower.y =
+          dropStartY + (groundY - dropStartY) * eased;
 
-        if (t >= 1) {
-          phase = "roll";
-          phaseStart = ts;
+        rollingFlower.rotation =
+          eased * 0.35 * (rollEndX < rollStartX ? -1 : 1);
+
+        trail.push({
+          x: rollingFlower.x,
+          y: rollingFlower.y
+        });
+
+        if (progress >= 1) {
+          animationPhase = "roll";
+          phaseStartTime = timestamp;
         }
-      } else if (phase === "roll") {
-        const duration = 950;
-        const t = Math.min(1, (ts - phaseStart) / duration);
-        const eased = easeOutCubic(t);
+      } else if (animationPhase === "roll") {
+        const duration = 850;
+        const progress = Math.min(
+          1,
+          (timestamp - phaseStartTime) / duration
+        );
 
-        flower.x = rollFromX + (rollToX - rollFromX) * eased;
+        const eased = easeOutCubic(progress);
 
-        const jump = 12 * Math.pow(1 - t, 1.6);
-        flower.y = groundY - Math.abs(Math.sin(t * Math.PI * 4)) * jump;
+        rollingFlower.x =
+          rollStartX + (rollEndX - rollStartX) * eased;
 
-        const distance = flower.x - rollFromX;
-        flower.rot = distance / flower.size * 0.55;
+        const jumpHeight =
+          10 * Math.pow(1 - progress, 1.6);
 
-        trailPoints.push({ x: flower.x, y: flower.y });
+        rollingFlower.y =
+          groundY -
+          Math.abs(Math.sin(progress * Math.PI * 4)) * jumpHeight;
 
-        if (t >= 1) {
-          phase = "settle";
-          phaseStart = ts;
+        rollingFlower.rotation =
+          (rollingFlower.x - rollStartX) /
+          rollingFlower.size *
+          0.55;
+
+        trail.push({
+          x: rollingFlower.x,
+          y: rollingFlower.y
+        });
+
+        if (progress >= 1) {
+          animationPhase = "settle";
+          phaseStartTime = timestamp;
         }
-      } else if (phase === "settle") {
-        const duration = 450;
-        const t = Math.min(1, (ts - phaseStart) / duration);
+      } else if (animationPhase === "settle") {
+        const duration = 400;
+        const progress = Math.min(
+          1,
+          (timestamp - phaseStartTime) / duration
+        );
 
-        flower.x = rollToX;
-        flower.y = groundY;
-        flower.alpha = 1 - t;
-        flower.scale = 1 + t * 0.4;
-        trailAlpha = 1 - t * 0.9;
+        rollingFlower.x = rollEndX;
+        rollingFlower.y = groundY;
+        rollingFlower.alpha = 1 - progress;
+        rollingFlower.scale = 1 + progress * 0.35;
+        trailOpacity = 1 - progress;
 
-        if (clickTime === null) {
-          clickTime = ts;
-          buildFlowerTree(treeX, treeY);
+        if (treeStartTime === null) {
+          treeStartTime = timestamp;
+          buildFlowerTree(heartTreeX, heartTreeY);
         }
 
-        if (t >= 1) {
-          phase = "grow";
-          flower.alpha = 0;
-          trailAlpha = 0;
+        if (progress >= 1) {
+          animationPhase = "grow";
+          rollingFlower.alpha = 0;
+          trailOpacity = 0;
         }
       }
     }
 
     function drawTrail() {
-      if (trailPoints.length < 2 || trailAlpha <= 0) return;
+      if (trail.length < 2 || trailOpacity <= 0) return;
 
-      tX.save();
-      tX.lineCap = "round";
-      tX.lineJoin = "round";
+      treeContext.save();
+      treeContext.lineCap = "round";
+      treeContext.lineJoin = "round";
 
-      tX.strokeStyle = "#ff1493";
-      tX.lineWidth = 7;
-      tX.globalAlpha = trailAlpha * 0.18;
-      tX.beginPath();
-      tX.moveTo(trailPoints[0].x, trailPoints[0].y);
+      treeContext.strokeStyle = "#ff1493";
+      treeContext.lineWidth = 5;
+      treeContext.globalAlpha = trailOpacity * 0.2;
 
-      for (let i = 1; i < trailPoints.length; i++) {
-        tX.lineTo(trailPoints[i].x, trailPoints[i].y);
+      treeContext.beginPath();
+      treeContext.moveTo(trail[0].x, trail[0].y);
+
+      for (let i = 1; i < trail.length; i++) {
+        treeContext.lineTo(trail[i].x, trail[i].y);
       }
 
-      tX.stroke();
+      treeContext.stroke();
 
-      tX.globalAlpha = trailAlpha * 0.75;
-      tX.strokeStyle = "#ffc2d4";
-      tX.lineWidth = 2;
-      tX.beginPath();
-      tX.moveTo(trailPoints[0].x, trailPoints[0].y);
+      treeContext.strokeStyle = "#ffc2d4";
+      treeContext.lineWidth = 1.8;
+      treeContext.globalAlpha = trailOpacity * 0.7;
 
-      for (let i = 1; i < trailPoints.length; i++) {
-        tX.lineTo(trailPoints[i].x, trailPoints[i].y);
+      treeContext.beginPath();
+      treeContext.moveTo(trail[0].x, trail[0].y);
+
+      for (let i = 1; i < trail.length; i++) {
+        treeContext.lineTo(trail[i].x, trail[i].y);
       }
 
-      tX.stroke();
-      tX.restore();
+      treeContext.stroke();
+      treeContext.restore();
     }
 
-    function drawFlowerIcon() {
-      if (flower.alpha <= 0) return;
+    function drawRollingFlower() {
+      if (rollingFlower.alpha <= 0) return;
 
-      tX.save();
-      tX.translate(flower.x, flower.y);
-      tX.rotate(flower.rot);
-      tX.scale(flower.scale, flower.scale);
-      tX.globalAlpha = flower.alpha;
+      treeContext.save();
+      treeContext.translate(rollingFlower.x, rollingFlower.y);
+      treeContext.rotate(rollingFlower.rotation);
+      treeContext.scale(rollingFlower.scale, rollingFlower.scale);
+      treeContext.globalAlpha = rollingFlower.alpha;
 
-      tX.fillStyle = "#ff1493";
-      flowerPath(tX, 0, -flower.size * 0.4, flower.size);
-      tX.fill();
+      treeContext.fillStyle = "#ff1493";
+      drawFlowerShape(
+        treeContext,
+        0,
+        -rollingFlower.size * 0.4,
+        rollingFlower.size
+      );
+      treeContext.fill();
 
-      tX.fillStyle = "#ff85a1";
-      flowerPath(tX, 0, -flower.size * 0.4 + 2, flower.size * 0.72);
-      tX.fill();
+      treeContext.fillStyle = "#ff85a1";
+      drawFlowerShape(
+        treeContext,
+        0,
+        -rollingFlower.size * 0.4 + 2,
+        rollingFlower.size * 0.72
+      );
+      treeContext.fill();
 
-      tX.restore();
+      treeContext.restore();
     }
 
-    function heartPoint(t) {
-      const hx = 16 * Math.pow(Math.sin(t), 3);
+    function getHeartPoint(value) {
+      const x = 16 * Math.pow(Math.sin(value), 3);
 
-      const hy = -(
-        13 * Math.cos(t) -
-        5 * Math.cos(2 * t) -
-        2 * Math.cos(3 * t) -
-        Math.cos(4 * t)
+      const y = -(
+        13 * Math.cos(value) -
+        5 * Math.cos(2 * value) -
+        2 * Math.cos(3 * value) -
+        Math.cos(4 * value)
       );
 
-      return { hx, hy };
+      return { x, y };
     }
 
-    function addBranch(x, y, endX, endY, width, delay) {
+    function addBranch(startX, startY, endX, endY, lineWidth, delay) {
       branches.push({
-        x,
-        y,
+        startX,
+        startY,
         endX,
         endY,
-        width,
+        lineWidth,
         delay
       });
     }
 
-    function growInnerBranch(x, y, angle, length, width, delay) {
-      if (length < 6 || width < 0.8) return;
+    function addInnerBranch(x, y, angle, length, lineWidth, delay) {
+      if (length < 6 || lineWidth < 0.8) return;
 
       const endX = x + Math.cos(angle) * length;
       const endY = y + Math.sin(angle) * length;
 
-      addBranch(x, y, endX, endY, width, delay);
+      addBranch(x, y, endX, endY, lineWidth, delay);
 
-      const spread = 0.38 + Math.random() * 0.28;
-      const shrink = 0.62 + Math.random() * 0.12;
+      const spread = 0.4;
+      const shrink = 0.64;
 
-      if (Math.random() > 0.32) {
-        growInnerBranch(
+      if (Math.random() > 0.42) {
+        addInnerBranch(
           endX,
           endY,
           angle - spread,
           length * shrink,
-          width * 0.66,
-          delay + 70
+          lineWidth * 0.65,
+          delay + 75
         );
       }
 
-      if (Math.random() > 0.32) {
-        growInnerBranch(
+      if (Math.random() > 0.42) {
+        addInnerBranch(
           endX,
           endY,
           angle + spread,
           length * shrink,
-          width * 0.66,
-          delay + 70
+          lineWidth * 0.65,
+          delay + 75
         );
       }
     }
 
+    /*
+      Cây ít nhánh hơn:
+      points = 16 thay vì 23+.
+    */
     function buildFlowerTree(rootX, rootY) {
       branches = [];
 
-      const scale = Math.min(W, H) * 0.024;
-      const stemHeight = H * 0.07;
+      const scale = Math.min(width, height) * 0.024;
+      const stemHeight = height * 0.07;
       const stemTopY = rootY - stemHeight;
 
-      addBranch(rootX, rootY, rootX, stemTopY, 10, 0);
+      addBranch(rootX, rootY, rootX, stemTopY, 9, 0);
 
-      const points = 23;
+      const points = 16;
 
       for (const direction of [1, -1]) {
         let previousX = rootX;
         let previousY = stemTopY;
-        let previousWidth = 9;
+        let previousWidth = 8;
         let delay = 150;
 
         for (let i = 1; i <= points; i++) {
-          const t = Math.PI + direction * Math.PI * i / points;
-          const { hx, hy } = heartPoint(t);
+          const t =
+            Math.PI +
+            direction * Math.PI * i / points;
 
-          const currentX = rootX + hx * scale;
-          const currentY = stemTopY - (17 - hy) * scale;
-          const currentWidth = Math.max(1.5, previousWidth * 0.945);
+          const point = getHeartPoint(t);
+
+          const currentX = rootX + point.x * scale;
+          const currentY =
+            stemTopY - (17 - point.y) * scale;
+
+          const currentWidth = Math.max(
+            1.4,
+            previousWidth * 0.94
+          );
 
           addBranch(
             previousX,
@@ -593,19 +674,19 @@
             delay
           );
 
-          if (i > 2 && i < points - 1 && i % 3 === 0) {
+          if (i > 2 && i < points - 1 && i % 4 === 0) {
             const centerY = stemTopY - 11 * scale;
 
             const angle =
               Math.atan2(centerY - currentY, rootX - currentX) +
-              (Math.random() - 0.5) * 0.45;
+              (Math.random() - 0.5) * 0.35;
 
-            growInnerBranch(
+            addInnerBranch(
               currentX,
               currentY,
               angle,
-              scale * (2 + Math.random() * 1.5),
-              currentWidth * 0.5,
+              scale * (1.9 + Math.random() * 1.2),
+              currentWidth * 0.48,
               delay + 35
             );
           }
@@ -613,52 +694,51 @@
           previousX = currentX;
           previousY = currentY;
           previousWidth = currentWidth;
-          delay += 48;
+          delay += 54;
         }
       }
     }
 
-    function drawBranch(context, x1, y1, x2, y2, width) {
+    function drawBranch(context, startX, startY, endX, endY, lineWidth) {
       context.lineCap = "round";
       context.strokeStyle = "#ffc2d4";
-      context.lineWidth = Math.max(1, width * 0.55);
-      context.globalAlpha = 0.9;
+      context.lineWidth = Math.max(1, lineWidth * 0.55);
+      context.globalAlpha = 0.88;
 
       context.beginPath();
-      context.moveTo(x1, y1);
-      context.lineTo(x2, y2);
+      context.moveTo(startX, startY);
+      context.lineTo(endX, endY);
       context.stroke();
     }
 
     function bakeTree() {
-      treeBaked = document.createElement("canvas");
-      treeBaked.width = W;
-      treeBaked.height = H;
+      treeCache = document.createElement("canvas");
+      treeCache.width = width;
+      treeCache.height = height;
 
-      const context = treeBaked.getContext("2d");
+      const context = treeCache.getContext("2d");
 
       for (const branch of branches) {
         drawBranch(
           context,
-          branch.x,
-          branch.y,
+          branch.startX,
+          branch.startY,
           branch.endX,
           branch.endY,
-          branch.width
+          branch.lineWidth
         );
       }
     }
 
     /*
-      Chỉ có 180 hoa:
-      140 hoa bên trong + 40 hoa viền ngoài.
-      Ít hơn nhiều so với code trước nên đỡ lag.
+      90 bông hoa tổng cộng:
+      70 bên trong + 20 viền ngoài.
     */
-    function spawnLeaves(rootX, rootY) {
-      leaves = [];
+    function createFlowers(rootX, rootY) {
+      flowers = [];
 
-      const scale = Math.min(W, H) * 0.024;
-      const stemHeight = H * 0.07;
+      const scale = Math.min(width, height) * 0.024;
+      const stemHeight = height * 0.07;
 
       const centerX = rootX;
       const centerY = (rootY - stemHeight) - 11 * scale;
@@ -666,156 +746,173 @@
       const radiusX = 16 * scale * 1.05;
       const radiusY = 11 * scale * 1.05;
 
-      for (let i = 0; i < 140; i++) {
+      for (let i = 0; i < 70; i++) {
         const t = Math.random() * Math.PI * 2;
-        const { hx, hy } = heartPoint(t);
-        const scatter = 0.2 + Math.random() * 0.8;
+        const point = getHeartPoint(t);
+        const spread = 0.22 + Math.random() * 0.78;
 
-        leaves.push({
+        flowers.push({
           x:
             centerX +
-            (hx / 16) * radiusX * scatter +
-            (Math.random() - 0.5) * 18,
+            (point.x / 16) * radiusX * spread +
+            (Math.random() - 0.5) * 14,
 
           y:
             centerY +
-            ((hy - 6) / 11) * radiusY * scatter +
-            (Math.random() - 0.5) * 18,
+            ((point.y - 6) / 11) * radiusY * spread +
+            (Math.random() - 0.5) * 14,
 
-          size: 4 + Math.random() * 7,
-          color: rand(COLORS),
-          delay: performance.now() + i * 6 + Math.random() * 360
+          size: 4 + Math.random() * 6,
+          color: pick(COLORS),
+          delay: performance.now() + i * 12 + Math.random() * 260
         });
       }
 
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 20; i++) {
         const t = Math.random() * Math.PI * 2;
-        const { hx, hy } = heartPoint(t);
+        const point = getHeartPoint(t);
 
-        leaves.push({
+        flowers.push({
           x:
             centerX +
-            (hx / 16) * radiusX +
-            (Math.random() - 0.5) * 10,
+            (point.x / 16) * radiusX +
+            (Math.random() - 0.5) * 8,
 
           y:
             centerY +
-            ((hy - 6) / 11) * radiusY +
-            (Math.random() - 0.5) * 10,
+            ((point.y - 6) / 11) * radiusY +
+            (Math.random() - 0.5) * 8,
 
-          size: 3 + Math.random() * 4,
-          color: rand(COLORS),
-          delay: performance.now() + i * 8 + Math.random() * 300
+          size: 3 + Math.random() * 3.5,
+          color: pick(COLORS),
+          delay: performance.now() + i * 14 + Math.random() * 240
         });
       }
     }
 
-    function bakeLeaves() {
-      leavesBaked = document.createElement("canvas");
-      leavesBaked.width = W;
-      leavesBaked.height = H;
+    function bakeFlowers() {
+      flowerCache = document.createElement("canvas");
+      flowerCache.width = width;
+      flowerCache.height = height;
 
-      const context = leavesBaked.getContext("2d");
+      const context = flowerCache.getContext("2d");
 
-      for (const leaf of leaves) {
-        context.fillStyle = leaf.color;
-        flowerPath(context, leaf.x, leaf.y, leaf.size);
+      for (const flower of flowers) {
+        context.fillStyle = flower.color;
+        drawFlowerShape(context, flower.x, flower.y, flower.size);
         context.fill();
       }
     }
 
-    function animate(ts) {
-      drawAmbient(ts);
-      tX.clearRect(0, 0, W, H);
+    function render(timestamp) {
+      drawBackground(timestamp);
+      treeContext.clearRect(0, 0, width, height);
 
-      if (phase !== "idle") {
-        updatePhases(ts);
+      if (animationPhase !== "idle") {
+        updateFlowerAnimation(timestamp);
       }
 
-      if (clickTime !== null) {
-        const elapsed = ts - clickTime;
+      if (treeStartTime !== null) {
+        const elapsed = timestamp - treeStartTime;
 
-        if (treeBaked) {
-          tX.drawImage(treeBaked, 0, 0);
+        if (treeCache) {
+          treeContext.drawImage(treeCache, 0, 0);
         } else {
-          let treeFinished = true;
+          let allBranchesDone = true;
 
           for (const branch of branches) {
             const progress = Math.min(
               1,
-              Math.max(0, (elapsed - branch.delay) / 220)
+              Math.max(0, (elapsed - branch.delay) / 210)
             );
 
-            if (progress < 1) treeFinished = false;
+            if (progress < 1) allBranchesDone = false;
             if (progress <= 0) continue;
 
             const currentX =
-              branch.x + (branch.endX - branch.x) * progress;
+              branch.startX +
+              (branch.endX - branch.startX) * progress;
 
             const currentY =
-              branch.y + (branch.endY - branch.y) * progress;
+              branch.startY +
+              (branch.endY - branch.startY) * progress;
 
             drawBranch(
-              tX,
-              branch.x,
-              branch.y,
+              treeContext,
+              branch.startX,
+              branch.startY,
               currentX,
               currentY,
-              branch.width
+              branch.lineWidth
             );
           }
 
-          if (treeFinished && branches.length && !treeDone) {
-            treeDone = true;
+          if (
+            allBranchesDone &&
+            branches.length > 0 &&
+            !treeFinished
+          ) {
+            treeFinished = true;
             bakeTree();
-            spawnLeaves(treeX, treeY);
+            createFlowers(heartTreeX, heartTreeY);
           }
         }
 
-        if (leavesBaked) {
-          tX.drawImage(leavesBaked, 0, 0);
-        } else if (treeDone) {
-          let leavesFinished = true;
+        if (flowerCache) {
+          treeContext.drawImage(flowerCache, 0, 0);
+        } else if (treeFinished) {
+          let allFlowersDone = true;
 
-          for (const leaf of leaves) {
+          for (const flower of flowers) {
             const progress = Math.min(
               1,
-              Math.max(0, (ts - leaf.delay) / 150)
+              Math.max(0, (timestamp - flower.delay) / 140)
             );
 
-            if (progress < 1) leavesFinished = false;
+            if (progress < 1) allFlowersDone = false;
             if (progress <= 0) continue;
 
-            tX.globalAlpha = progress;
-            tX.fillStyle = leaf.color;
-            flowerPath(tX, leaf.x, leaf.y, leaf.size * progress);
-            tX.fill();
+            treeContext.globalAlpha = progress;
+            treeContext.fillStyle = flower.color;
+
+            drawFlowerShape(
+              treeContext,
+              flower.x,
+              flower.y,
+              flower.size * progress
+            );
+
+            treeContext.fill();
           }
 
-          tX.globalAlpha = 1;
+          treeContext.globalAlpha = 1;
 
-          if (leavesFinished && leaves.length && !leavesDone) {
-            leavesDone = true;
-            bakeLeaves();
+          if (
+            allFlowersDone &&
+            flowers.length > 0 &&
+            !flowersFinished
+          ) {
+            flowersFinished = true;
+            bakeFlowers();
             startTypewriter();
           }
         }
       }
 
       if (
-        phase === "drop" ||
-        phase === "roll" ||
-        phase === "settle"
+        animationPhase === "drop" ||
+        animationPhase === "roll" ||
+        animationPhase === "settle"
       ) {
         drawTrail();
-        drawFlowerIcon();
+        drawRollingFlower();
       }
 
-      requestAnimationFrame(animate);
+      requestAnimationFrame(render);
     }
 
     function startAnimation() {
-      if (phase !== "idle") return;
+      if (animationPhase !== "idle") return;
 
       const music = document.getElementById("bg-music");
 
@@ -823,20 +920,24 @@
         music.volume = 0.35;
 
         music.play().catch(error => {
-          console.log("Không thể phát nhạc:", error);
+          console.log("Không phát được nhạc:", error);
         });
       }
 
       const intro = document.getElementById("initial");
-      const flowerElement = intro.querySelector(".flower");
-      const rect = flowerElement.getBoundingClientRect();
+      const introFlower = intro.querySelector(".flower");
+      const position = introFlower.getBoundingClientRect();
 
-      flower.x = rect.left + rect.width / 2;
-      flower.y = rect.top + rect.height / 2;
-      flower.size = Math.max(38, Math.min(64, rect.width * 0.55));
-      flower.alpha = 1;
-      flower.rot = 0;
-      flower.scale = 1;
+      rollingFlower.x = position.left + position.width / 2;
+      rollingFlower.y = position.top + position.height / 2;
+      rollingFlower.size = Math.max(
+        38,
+        Math.min(64, position.width * 0.55)
+      );
+
+      rollingFlower.alpha = 1;
+      rollingFlower.rotation = 0;
+      rollingFlower.scale = 1;
 
       intro.style.opacity = "0";
 
@@ -844,75 +945,78 @@
         intro.style.display = "none";
       }, 300);
 
-      groundY = H * 0.86;
-      dropFromY = flower.y;
-      rollFromX = flower.x;
+      groundY = height * 0.86;
+      dropStartY = rollingFlower.y;
+      rollStartX = rollingFlower.x;
 
       /*
-        Cây desktop ở 76% chiều ngang:
-        chừa đủ khu vực nội dung bên trái.
+        Desktop: Cây nằm 77% phía ngang màn hình.
+        Chừa khoảng trống lớn cho cột ảnh + lời chúc bên trái.
       */
-      rollToX = W < 780 ? W * 0.5 : W * 0.76;
+      rollEndX =
+        width < 780
+          ? width * 0.5
+          : width * 0.77;
 
-      treeX = rollToX;
-      treeY = groundY;
+      heartTreeX = rollEndX;
+      heartTreeY = groundY;
 
-      trailPoints = [{ x: flower.x, y: flower.y }];
-      trailAlpha = 1;
+      trail = [{
+        x: rollingFlower.x,
+        y: rollingFlower.y
+      }];
 
-      phase = "drop";
-      phaseStart = performance.now();
+      trailOpacity = 1;
+      animationPhase = "drop";
+      phaseStartTime = performance.now();
     }
 
-    /*
-      Ảnh và khung lời chúc chỉ hiện sau khi hoa nở hoàn tất.
-    */
     function startTypewriter() {
-      const message = document.getElementById("message");
       const photo = document.getElementById("birthday-photo");
+      const message = document.getElementById("message");
 
       photo.classList.add("visible");
       message.style.opacity = "1";
 
-      let lineIndex = 0;
+      let line = 0;
 
-      function showNextLine() {
-        if (lineIndex >= LINES.length) return;
+      function typeNextLine() {
+        if (line >= LINES.length) return;
 
-        const span = document.createElement("span");
-        span.style.borderRight = "2px solid #ff69b4";
-        span.style.animation = "blink .65s step-end infinite";
+        const textElement = document.createElement("span");
+        textElement.style.borderRight = "2px solid #ff69b4";
+        textElement.style.animation = "blink .65s step-end infinite";
 
-        message.appendChild(span);
+        message.appendChild(textElement);
 
-        const text = LINES[lineIndex];
-        let characterIndex = 0;
+        const text = LINES[line];
+        let character = 0;
 
-        const typing = setInterval(() => {
-          if (characterIndex <= text.length) {
-            span.textContent = text.substring(0, characterIndex);
-            characterIndex++;
+        const timer = setInterval(() => {
+          if (character <= text.length) {
+            textElement.textContent = text.substring(0, character);
+            character++;
           } else {
-            clearInterval(typing);
+            clearInterval(timer);
 
-            span.style.borderRight = "none";
-            span.style.animation = "none";
+            textElement.style.borderRight = "none";
+            textElement.style.animation = "none";
 
-            lineIndex++;
-            setTimeout(showNextLine, 420);
+            line++;
+            setTimeout(typeNextLine, 380);
           }
-        }, 55);
+        }, 52);
       }
 
-      showNextLine();
+      typeNextLine();
     }
 
-    resize();
-    initParticles();
+    resizeCanvas();
+    initializeParticles();
 
-    window.addEventListener("resize", initParticles);
+    window.addEventListener("resize", initializeParticles);
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(render);
   </script>
 </body>
 </html>
