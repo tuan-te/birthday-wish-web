@@ -27,12 +27,55 @@
     #initial .label { margin-top:7px; color:#ffb6d9; font-size:clamp(22px,2.6vw,33px); letter-spacing:1.5px; line-height:1.55; text-shadow:0 0 10px #ff69b4,0 0 22px #ff1493; }
     @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.18); } }
 
-    #content-column { position:fixed; top:8vh; left:3vw; z-index:10; width:min(43vw,580px); max-width:580px; display:flex; flex-direction:column; align-items:center; gap:18px; pointer-events:none; }
-    #birthday-photo { width:min(28vw,300px); aspect-ratio:1/1; opacity:0; visibility:hidden; transition:opacity .7s ease,visibility .7s ease; }
+    #content-column { position:fixed; top:6vh; left:2vw; z-index:10; width:min(57vw,760px); max-width:760px; display:flex; flex-direction:column; align-items:center; gap:14px; pointer-events:none; }
+    #birthday-photo { width:min(21vw,220px); aspect-ratio:1/1; opacity:0; visibility:hidden; transition:opacity .7s ease,visibility .7s ease; }
     #birthday-photo.visible { opacity:1; visibility:visible; }
     #birthday-photo img { display:block; width:100%; height:100%; object-fit:cover; border:2px solid rgba(255,105,180,.6); border-radius:18px; box-shadow:0 0 22px rgba(255,20,147,.35); }
-    #message { width:fit-content; min-width:min(340px,100%); max-width:100%; min-height:105px; max-height:51vh; overflow-y:auto; overflow-x:hidden; padding:16px 24px; border:1px solid rgba(255,105,180,.25); border-radius:16px; color:#fff; opacity:0; text-align:center; font-family:"Dancing Script",cursive; font-size:clamp(17px,1.75vw,26px); line-height:1.65; background:rgba(17,0,14,.52); box-shadow:0 0 16px rgba(255,20,147,.14); transition:opacity .7s ease; }
-    #message span { display:block; width:max-content; max-width:100%; white-space:nowrap; overflow-wrap:anywhere; text-shadow:0 0 5px #ff69b4,0 0 9px #ff1493; }
+    #message {
+  width: fit-content;
+  min-width: min(430px, 100%);
+  max-width: 100%;
+
+  min-height: 105px;
+  max-height: 56vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 16px 24px;
+  border: 1px solid rgba(255, 105, 180, 0.25);
+  border-radius: 16px;
+
+  color: #fff;
+  opacity: 0;
+  text-align: center;
+
+  font-family: "Dancing Script", cursive;
+  font-size: clamp(17px, 1.65vw, 25px);
+  line-height: 1.65;
+
+  background: rgba(17, 0, 14, 0.52);
+  box-shadow: 0 0 16px rgba(255, 20, 147, 0.14);
+
+  transition: opacity 0.7s ease;
+}
+
+#message span {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+
+  /*
+    Cho phép câu dài tự xuống dòng,
+    không bị khuất bên phải.
+  */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+
+  text-shadow:
+    0 0 5px #ff69b4,
+    0 0 9px #ff1493;
+}
     @keyframes blink { 50% { border-color:transparent; } }
 
     #wish-link { position:fixed; bottom:6vh; left:50%; z-index:50; display:inline-flex; align-items:center; justify-content:center; padding:12px 20px; border:1px solid rgba(255,220,238,.75); border-radius:999px; color:#fff; cursor:pointer; opacity:0; visibility:hidden; pointer-events:auto; text-decoration:none; transform:translateX(-50%) translateY(12px); font-family:"Poppins",sans-serif; font-size:13px; font-weight:700; letter-spacing:.3px; white-space:nowrap; background:linear-gradient(135deg,#ff1493,#8b5cf6); box-shadow:0 0 18px rgba(255,20,147,.45); transition:opacity .5s ease,visibility .5s ease,transform .5s ease,filter .2s ease; }
@@ -94,7 +137,10 @@
     let rollingFlower = { x: 0, y: 0, size: 48, alpha: 1, rotation: 0 };
 
     const COLORS = ["#ff1493", "#ff69b4", "#ff85a1", "#ffc2d4", "#e0115f", "#d63384", "#ff6b9d", "#ffa07a"];
-    const LINES = ["Vào rạng sáng ngày 28/9/2026. Chị Tạ Lan Vy (Bút danh: Giấm Gai) đã đột ngột bước sang tuổi mới tại nhà riêng.", "And give you lots of happiness ✨", "Just saying... you are pretty awesome 😍", "Hope you have a great day today 🌸"];
+    const LINES = [
+  "Vào rạng sáng ngày 28/9/2026, chị Tạ Lan Vy (bút danh: Giấm Gai) đã đột ngột bước sang tuổi mới tại nhà riêng.",
+  "Xin cảm ơn các kỹ sư Liên Xô đã hỗ trợ xây dựng thủy điện Hòa Bình năm 1994 và Đảng ta đã xây dựng đại thủy điện Sơn La — lớn nhất Đông Nam Á — để nhân dân không lo cảnh thiếu điện; để những ánh đèn nơi bệnh viện phụ sản luôn được thắp sáng và chào đón cô gái mang tên Tạ Lan Vy. 🌸"
+];
 
     function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
     function resizeCanvas() {
