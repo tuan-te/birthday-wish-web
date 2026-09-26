@@ -85,17 +85,16 @@
   <script>
     const SLOTS = [
       { icon: "💰", label: "Tiền dô như nước" }, { icon: "💌", label: "Con ghệ đíc bự" },
-      { icon: "🎓", label: "Out trình lũ CTU" }, { icon: "🍗", label: "Ăn uống ngập l" },
+      { icon: "🎓", label: "Bé giởi bé ngoan" }, { icon: "🍗", label: "Ăn uống ngập l" },
       { icon: "💤", label: "Ngủ phè cái l" }, { icon: "🏋️", label: "Body siu mẫu" },
-      { icon: "🌸", label: "Thiếu nữ bên hoa quệ" }, { icon: "💅", label: "Slay mama ten" }
+      { icon: "🌸", label: "Thiếu nữ bên hoa huệ" }, { icon: "💅", label: "Slay mama ten" }
     ];
     const BAD_RESULTS = [
-      "🎂 +1 tuổi, -1 sức trẻ", "📚 Deadline tự nhân đôi", "💸 Tiền vào tay trái, ra tay phải",
-      "💤 Ngủ 8 tiếng vẫn mệt như chưa ngủ", "🐛 Code chạy máy mình, lỗi máy người ta",
-      "💬 Crush xem tin nhắn rồi để đó", "🍗 Ăn ngon miệng, tăng cân đúng kế hoạch",
-      "🏋️ Gym đều nhưng cơ chưa thấy", "⏰ Báo thức reo, bạn tắt theo bản năng",
-      "🤡 Vẫn là nhân vật chính trong các pha báo"
-    ];
+      "💸 Tiền dô tay trái, ra tay phải", "💌 Ghệ đíc bự của tui ròi, tự kiếm đi bạn",
+      "🎓 Giỏi thì được, ngoan là ngoan cái chó j", "🍗 Ăn uống ngập l, ráng ăn cho bự ra bạn",
+      "💤 Ngủ phè cái l, dậy mệt lòi l ", "🏋️ chắc 40kg cả bỉm, ăn nhiều lên bạn",
+      "🌸 Thiếu nữ bên hoa huệ, huệ huệ huệ ", "💅Muốn slay thì pick Lauriel đi sp thay vì con l Chaugnar "
+    ];  
     const wheel = document.getElementById("wheel");
     const spinButton = document.getElementById("spin-button");
     const status = document.getElementById("status");
@@ -147,7 +146,7 @@
 
       setTimeout(() => {
         status.textContent = "KẾT QUẢ";
-        result.innerHTML = `Hệ thống xin chúc mừng!<strong>${badResult}</strong>Điều ước đã được xử lý theo cách mà vũ trụ thấy vui nhất.`;
+        result.innerHTML = `Chúc mừng bạn nha!<strong>${badResult}</strong>\.`;
         finalMessage.classList.add("show");
         spinButton.disabled = false;
         spinButton.textContent = "🔁 Cho m quay lại đó";
