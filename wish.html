@@ -78,7 +78,7 @@
         <span id="status" class="status">HỆ THỐNG ĐANG CHỜ</span>
         <h2>Quà tuổi mới</h2>
         <div id="result">Nhìn cái đéo gì, bấm quay đi má !?<br></div>
-        <div id="final-message" class="final-message">Dù vòng quay hơi ác, chúc bạn tuổi mới vẫn vui, khỏe, nhiều tiền, ít deadline và luôn có người thương nha. 🥳</div>
+        <div id="final-message" class="final-message">Dừa cái lồn t lắm</div>
       </aside>
     </section>
   </main>
@@ -135,7 +135,7 @@
       spinButton.disabled = true;
       finalMessage.classList.remove("show");
       status.textContent = "Đợi xíu đang lag";
-      result.innerHTML = "Đang đọc vận mệnh tuổi mới...<br>Đang bỏ qua các điều tốt...<br>Đang chọn kết quả “phù hợp nhất”...";
+      result.innerHTML = "Đang đọc vận mệnh tuổi mới...<br>Đang chọn kết quả phù hợp nhất...";
 
       const visualSlot = Math.floor(Math.random() * SLOTS.length);
       const badResult = BAD_RESULTS[Math.floor(Math.random() * BAD_RESULTS.length)];
@@ -146,11 +146,11 @@
       wheel.style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => {
-        status.textContent = "KẾT QUẢ ĐÃ ĐƯỢC CƠ CẤU";
+        status.textContent = "KẾT QUẢ";
         result.innerHTML = `Hệ thống xin chúc mừng!<strong>${badResult}</strong>Điều ước đã được xử lý theo cách mà vũ trụ thấy vui nhất.`;
         finalMessage.classList.add("show");
         spinButton.disabled = false;
-        spinButton.textContent = "🔁 QUAY LẠI NỮA KHÔNG?";
+        spinButton.textContent = "🔁 Cho m quay lại đó";
         spinning = false;
       }, 5900);
     }
