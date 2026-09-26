@@ -69,30 +69,25 @@
 <body>
   <a class="back-button" href="./index.html">← Quay lại thiệp</a>
   <main class="page">
-    <section class="title">
-      <h1>Điều ước tuổi mới ✨</h1>
-      <p>Hệ thống sẽ chọn một điều ước phù hợp nhất với nhân vật chính hôm nay.</p>
-      <small>*Hệ thống cam kết hoàn toàn không cơ cấu.</small>
-    </section>
     <section class="layout">
       <div class="wheel-area">
         <div class="wheel-wrapper"><div class="pointer"></div><div id="wheel"></div></div>
-        <button id="spin-button" type="button">✨ QUAY ĐIỀU ƯỚC ✨</button>
+        <button id="spin-button" type="button">✨ Quay thui quay thui ✨</button>
       </div>
       <aside class="result-box">
         <span id="status" class="status">HỆ THỐNG ĐANG CHỜ</span>
         <h2>Quà tuổi mới</h2>
-        <div id="result">Bấm quay đi. Biết đâu vũ trụ sẽ ưu ái bạn một lần…<br><br>Hoặc không. Nhưng cứ thử cho biết.</div>
+        <div id="result">Nhìn cái đéo gì, bấm quay đi má !?<br></div>
         <div id="final-message" class="final-message">Dù vòng quay hơi ác, chúc bạn tuổi mới vẫn vui, khỏe, nhiều tiền, ít deadline và luôn có người thương nha. 🥳</div>
       </aside>
     </section>
   </main>
   <script>
     const SLOTS = [
-      { icon: "💰", label: "Trúng tiền" }, { icon: "💌", label: "Crush rep" },
-      { icon: "🎓", label: "Điểm A" }, { icon: "🍗", label: "Ăn không béo" },
-      { icon: "💤", label: "Ngủ ngon" }, { icon: "🏋️", label: "Body đẹp" },
-      { icon: "💻", label: "Code không bug" }, { icon: "✨", label: "May mắn" }
+      { icon: "💰", label: "Tiền dô như nước" }, { icon: "💌", label: "Con ghệ đíc bự" },
+      { icon: "🎓", label: "Out trình lũ CTU" }, { icon: "🍗", label: "Ăn uống ngập l" },
+      { icon: "💤", label: "Ngủ phè cái l" }, { icon: "🏋️", label: "Body siu mẫu" },
+      { icon: "🌸", label: "Thiếu nữ bên hoa quệ" }, { icon: "💅", label: "Slay mama ten" }
     ];
     const BAD_RESULTS = [
       "🎂 +1 tuổi, -1 sức trẻ", "📚 Deadline tự nhân đôi", "💸 Tiền vào tay trái, ra tay phải",
@@ -139,7 +134,7 @@
       spinning = true;
       spinButton.disabled = true;
       finalMessage.classList.remove("show");
-      status.textContent = "HỆ THỐNG ĐANG PHÂN TÍCH...";
+      status.textContent = "Đợi xíu đang lag";
       result.innerHTML = "Đang đọc vận mệnh tuổi mới...<br>Đang bỏ qua các điều tốt...<br>Đang chọn kết quả “phù hợp nhất”...";
 
       const visualSlot = Math.floor(Math.random() * SLOTS.length);
