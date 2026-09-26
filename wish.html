@@ -351,7 +351,7 @@
       </div>
 
       <aside class="result-box">
-        <span id="status" class="status">HỆ THỐNG ĐANG CHỜ</span>
+        <span id="status" class="status">Đang đợi bạn quay</span>
 
         <h2>Quà tuổi mới</h2>
 
@@ -360,7 +360,7 @@
         </div>
 
         <div id="final-message" class="final-message">
-          Dừa cái lồn t lắm.
+          Chúc bạn một ngày vui vẻ!
         </div>
       </aside>
     </section>
@@ -378,7 +378,7 @@
       {
         icon: "💰",
         label: "Tiền dô như nước",
-        badResult: "💸 Tiền dô tay trái, ra tay phải."
+        badResult: "💰 Tiền dô tay trái, ra tay phải."
       },
       {
         icon: "💌",
@@ -464,10 +464,9 @@
       spinButton.disabled = true;
       finalMessage.classList.remove("show");
 
-      status.textContent = "ĐỢI XÍU ĐANG LAG";
+      status.textContent = "Đợi xíu đang lag";
       result.innerHTML = `
         Đang đọc vận mệnh tuổi mới...<br>
-        Đang lọc các điều ngon nghẻ...<br>
         Đang chọn cái phù hợp nhất với bạn...
       `;
 
@@ -509,7 +508,6 @@
         result.innerHTML = `
           Chúc mừng bạn nha!
           <strong>${selectedSlot.badResult}</strong>
-          Điều ước đã được vũ trụ xử lý đúng theo hướng rất riêng.
         `;
 
         finalMessage.classList.add("show");
@@ -528,4 +526,4 @@
     spinButton.addEventListener("click", spinWheel);
   </script>
 </body>
-</html>
+</html> 
